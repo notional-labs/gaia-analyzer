@@ -1,0 +1,28 @@
+{
+    "PointCap": 2,
+    "Actions": {
+        "Votes": [
+            {
+                "Vote": {
+                    "proposal_id": 1
+                },
+                "Point": 0.2
+            }
+        ],
+        "Delegations": [
+            {
+                "Delegation": {
+
+                },
+                "Point": 0.1
+            }
+        
+        ]
+    },
+    "PointPer": {
+        "Vote": {
+            "Point" : 0.001
+        }
+    }
+    
+}

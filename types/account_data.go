@@ -10,9 +10,10 @@ type AccountData struct {
 
 // action that an account executed via a tx
 type Actions struct {
-	Votes           []Vote
-	Delegates       []Delegate
-	Sends           []Send
+	Votes       []Vote
+	Delegations []Delegation
+	Sends       []Send
+
 	SubmitProposals []SubmitProposal
 }
 
@@ -26,7 +27,7 @@ type Vote struct {
 	ProposalId int
 }
 
-type Delegate struct {
+type Delegation struct {
 	DelegatedValidator string
 	Amount             string
 }

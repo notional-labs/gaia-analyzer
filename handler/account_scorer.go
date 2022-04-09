@@ -6,9 +6,14 @@ import (
 
 var (
 	IsWhaleAddress map[string]bool = map[string]bool{}
+	AppliedScorers []AccountScorer = []AccountScorer{
+		AccountInactivity,
+		AccountGovParticipation,
+		AccountIsWhale,
+	}
 )
 
-type Scorer func(a *types.AccountData)
+type AccountScorer func(a *types.AccountData)
 
 func AccountInactivity(a *types.AccountData) {
 	if a.AccountMetadata.NumTxs == 0 {
@@ -22,7 +27,7 @@ func AccountGovParticipation(a *types.AccountData) {
 	}
 }
 
-func AccountRelatedToWhale(a *types.AccountData) {
+func AccountIsWhale(a *types.AccountData) {
 	_, ok := IsWhaleAddress[a.Address]
 	if ok {
 		a.Score -= 9999999
