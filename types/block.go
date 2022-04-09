@@ -5,6 +5,5 @@ import (
 )
 
 type Block struct {
-	Height uint64
-	Txs    []sdk.Tx
+	Txs []sdk.Tx
 }
