@@ -1,8 +1,9 @@
 package main
 
 import (
-	"gaia-analyzer/blockexplore"
 	"os"
+
+	"github.com/notional-labs/gaia-analyzer/handler"
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	"github.com/notional-labs/dig/app"
@@ -20,7 +21,7 @@ func main() {
 		// this line is used by starport scaffolding # root/arguments
 	)
 	rootCmd.AddCommand(
-		blockexplore.BlockCommand(),
+		handler.BlockCommand(),
 	)
 	if err := svrcmd.Execute(rootCmd, app.DefaultNodeHome); err != nil {
 		os.Exit(1)

@@ -1,8 +1,11 @@
-package blockexplore
+package handler
 
 import (
 	"fmt"
 	"strconv"
+	"time"
+
+	"github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -16,6 +19,7 @@ func BlockCommand() *cobra.Command {
 		Short: "Get verified data for a the blocks",
 		Args:  cobra.MaximumNArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			startTime := time.Now()
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			node, err := clientCtx.GetNode()
 
@@ -52,9 +56,11 @@ func BlockCommand() *cobra.Command {
 				return err
 			}
 			for _, v := range output {
-				fmt.Println(string(v))
-
+				msg, _ := DecodeTx(v)
+				fmt.Println(types.MsgTypeURL(msg[0]))
+				fmt.Println(msg)
 			}
+			fmt.Println(time.Now().Sub(startTime))
 			return nil
 		},
 	}
