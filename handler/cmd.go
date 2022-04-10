@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/types"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -57,8 +58,13 @@ func BlockCommand() *cobra.Command {
 			}
 			for _, v := range output {
 				msg, _ := DecodeTx(v)
-				fmt.Println(types.MsgTypeURL(msg[0]))
-				fmt.Println(msg)
+
+				msgTypeURL := sdktypes.MsgTypeURL(msg[0])
+				if msgTypeURL == "/cosmos.staking.v1beta1.MsgDelegate" {
+					fmt.Println(types.MsgTypeURL(msg[0]))
+					fmt.Println(GetDelegateMsgData(msg[0]))
+
+				}
 			}
 			fmt.Println(time.Now().Sub(startTime))
 			return nil
