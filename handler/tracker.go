@@ -1,5 +1,5 @@
 package handler
 
-func GetTaintedAccounts() {
+func TrackCoinsFromAccount(address string, beginBlock int) {
 
 }

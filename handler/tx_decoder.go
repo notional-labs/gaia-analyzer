@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	gaiaapp "github.com/cosmos/gaia/v6/app"
 )
 
-func DecodeTx(txBytes []byte) ([]types.Msg, error) {
+func DecodeTx(txBytes []byte) ([]sdk.Msg, error) {
 	encCfg := gaiaapp.MakeEncodingConfig()
 	tx, err := encCfg.TxConfig.TxDecoder()(txBytes)
 
