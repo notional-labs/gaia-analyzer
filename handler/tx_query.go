@@ -7,7 +7,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
-	"github.com/cosmos/cosmos-sdk/x/bank/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
@@ -35,7 +34,7 @@ func GetAtomBalanceAtHeight(clientCtx client.Context, addressStr string, height 
 	if err != nil {
 		return 0, err
 	}
-	params := types.NewQueryBalanceRequest(addr, "uatom")
+	params := banktypes.NewQueryBalanceRequest(addr, "uatom")
 	res, err := queryClient.Balance(context.Background(), params)
 	return res.Balance.Amount.Uint64(), nil
 }
