@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	"container/heap"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
-	"container/heap"
+	"github.com/notional-labs/gaia-analyzer/types"
 )
 
 //
@@ -29,17 +30,14 @@ func GetBankSendTxsFromAddress(clientCtx client.Context, sender string, beginHei
 	if err != nil {
 		panic(err)
 	}
+
 	// push to tx queue
 	for _, tx := range txs.Txs {
-		_, ok := AddedBlocks[tx.Height]
-		if !ok {
-			AddedBlocks[tx.Height] = true
-			heap.Push(BlockQueue, tx.Height)
-			TxsAtBlock[tx.Height] = append(TxsAtBlock[tx.Height], tx)
-
+		timeTx := types.TimeTx{
+			Tx: tx,
 		}
+		heap.Push(&TxQueue, timeTx)
 	}
-
 }
 
 func GetBankSendTxsToAddress(clientCtx client.Context, receiver string, beginHeight int64) {
@@ -61,17 +59,14 @@ func GetBankSendTxsToAddress(clientCtx client.Context, receiver string, beginHei
 
 	// push to tx queue
 	for _, tx := range txs.Txs {
-		_, ok := AddedBlocks[tx.Height]
-		if !ok {
-			AddedBlocks[tx.Height] = true
-			heap.Push(BlockQueue, tx.Height)
-			TxsAtBlock[tx.Height] = append(TxsAtBlock[tx.Height], tx)
-
+		timeTx := types.TimeTx{
+			Tx: tx,
 		}
+		heap.Push(&TxQueue, timeTx)
 	}
 }
 
-func GetAtomBalanceAtHeight(clientCtx client.Context, addressStr string, height int64) uint64 {
+func GetAtomBalanceAtHeight(clientCtx client.Context, addressStr string, height int64) float64 {
 	queryClient := banktypes.NewQueryClient(clientCtx.WithHeight(height))
 	addr, err := sdk.AccAddressFromBech32(addressStr)
 	if err != nil {
@@ -79,5 +74,5 @@ func GetAtomBalanceAtHeight(clientCtx client.Context, addressStr string, height 
 	}
 	params := banktypes.NewQueryBalanceRequest(addr, "uatom")
 	res, err := queryClient.Balance(context.Background(), params)
-	return res.Balance.Amount.Uint64()
+	return float64(res.Balance.Amount.Uint64() / 1000000)
 }

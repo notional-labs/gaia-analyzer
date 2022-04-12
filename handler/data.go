@@ -4,26 +4,20 @@ import (
 	"container/heap"
 
 	"github.com/notional-labs/gaia-analyzer/types"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var (
-	TxsOf [][]byte
+	IsTrackedAccount map[string]bool
 
-	Balances map[types.BalanceAtHeightKey]uint64
+	AtomBalances map[string]float64
 
-	TrackedCoinBalances map[types.BalanceAtHeightKey]uint64
+	TrackedAtomBalances map[string]float64
 
-	AddedBlocks map[int64]bool
-
-	TxsAtBlock map[int64][]*sdk.TxResponse
-
-	BlockQueue *types.IntHeap = &types.IntHeap{}
+	TxQueue types.TxTimeQueue = make(types.TxTimeQueue, 100)
 )
 
 // This example inserts several ints into an IntHeap, checks the minimum,
 // and removes them in order of priority.
 func init() {
-	heap.Init(BlockQueue)
+	heap.Init(&TxQueue)
 }
