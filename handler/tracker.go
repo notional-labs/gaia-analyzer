@@ -35,8 +35,8 @@ func handle_tx(clientCtx client.Context, tx *types.TimeTx) string {
 }
 
 func TrackCoinsFromAccount(clientCtx client.Context, address string, beginBlock int64) {
-	GetBankSendTxsFromAddress(clientCtx, address, beginBlock)
-	GetBankSendTxsToAddress(clientCtx, address, beginBlock)
+	GetBankSendFromAddress(clientCtx, address, beginBlock)
+	GetBankSendToAddress(clientCtx, address, beginBlock)
 
 	atomAmountInThisAccount := GetAtomBalanceAtHeight(clientCtx, address, beginBlock)
 
@@ -60,7 +60,7 @@ func TrackCoinsFromAccount(clientCtx client.Context, address string, beginBlock 
 		// query BankSend tx this account sent starting from this tx height and push to tx queue
 		if !isTracked {
 			TrackedAtomBalances[address] = 0
-			GetBankSendTxsFromAddress(clientCtx, sender, tx.Tx.Height)
+			GetBankSendFromAddress(clientCtx, sender, tx.Tx.Height)
 		}
 	}
 	fmt.Printf("%+v", TrackedAtomBalances)

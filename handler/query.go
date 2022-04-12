@@ -14,7 +14,7 @@ import (
 )
 
 //
-func GetBankSendTxsFromAddress(clientCtx client.Context, sender string, beginHeight int64) {
+func GetBankSendFromAddress(clientCtx client.Context, sender string, beginHeight int64) {
 
 	senderEvent := fmt.Sprintf("%s='%s'", "message.sender", sender)
 
@@ -40,7 +40,7 @@ func GetBankSendTxsFromAddress(clientCtx client.Context, sender string, beginHei
 	}
 }
 
-func GetBankSendTxsToAddress(clientCtx client.Context, receiver string, beginHeight int64) {
+func GetBankSendToAddress(clientCtx client.Context, receiver string, beginHeight int64) {
 
 	senderEvent := fmt.Sprintf("%s='%s'", "coin_received.receiver", receiver)
 
@@ -70,9 +70,12 @@ func GetAtomBalanceAtHeight(clientCtx client.Context, addressStr string, height 
 	queryClient := banktypes.NewQueryClient(clientCtx.WithHeight(height))
 	addr, err := sdk.AccAddressFromBech32(addressStr)
 	if err != nil {
-		panic("can't query address balance")
+		panic(err)
 	}
 	params := banktypes.NewQueryBalanceRequest(addr, "uatom")
 	res, err := queryClient.Balance(context.Background(), params)
+	if err != nil {
+		panic(err)
+	}
 	return float64(res.Balance.Amount.Uint64() / 1000000)
 }
