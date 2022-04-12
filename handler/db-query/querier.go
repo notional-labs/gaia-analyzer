@@ -18,11 +18,12 @@ import (
 
 //	db, err := sdk.NewLevelDB("dig_leveldb_testing", dir)
 
-func QueryGovTxs(ctx client.Context, store dbm.DB, proposalID int) []*sdk.TxResponse {
-	var tmEvents = []string{
-		"message.action='/cosmos.gov.v1beta1.MsgVote'",
-		fmt.Sprintf("proposal_vote.proposal_id='%d'", proposalID),
-	}
+func QueryGovTxs(ctx client.Context, store dbm.DB, tmEvents []string) []*sdk.TxResponse {
+	// var tmEvents = []string{
+	// 	"message.action='/cosmos.gov.v1beta1.MsgVote'",
+	// 	fmt.Sprintf("proposal_vote.proposal_id='%d'", proposalID),
+	// }
+	//tm events like that
 
 	query := strings.Join(tmEvents, " AND ")
 
