@@ -1,6 +1,6 @@
 package types
 
-type BalanceQuery struct {
+type BalanceAtHeightKey struct {
 	Address string
-	Height  uint64
+	Height  int64
 }
