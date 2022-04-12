@@ -1,83 +1,36 @@
 package handler
 
 import (
-	"context"
 	"fmt"
-	"strings"
-	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	gaiaapp "github.com/cosmos/gaia/v6/app"
-	rpcclient "github.com/tendermint/tendermint/rpc/client"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 )
 
-func govVoteQueries(node rpcclient.Client, page, limit, proposalID int, voteOption int) ([]*sdk.TxResponse, error) {
-	encCfg := gaiaapp.MakeEncodingConfig()
-
-	var events = []string{
-		"message.action=/cosmos.gov.v1beta1.MsgVote",
-		fmt.Sprint("proposal_vote.proposal_id={}", proposalID),
-		fmt.Sprint("proposal_vote.option={}", voteOption),
+func govVoteQueries(clientCtx client.Context, page, limit, proposalID int) ([]*sdk.TxResponse, int) {
+	var tmEvents = []string{
+		"message.action='/cosmos.gov.v1beta1.MsgVote'",
+		fmt.Sprintf("proposal_vote.proposal_id='%d'", proposalID),
 	}
+	txs, err := authtx.QueryTxsByEvents(clientCtx, tmEvents, page, limit, "")
 
-	query := strings.Join(events, " AND ")
-	resTxs, err := node.TxSearch(context.Background(), query, true, &page, &limit, "")
-
-	resBlocks, err := getBlocksForTxResults(node, resTxs.Txs)
 	if err != nil {
-		return nil, err
+		return nil, 0
 	}
-
-	return formatTxResults(encCfg.TxConfig, resTxs.Txs, resBlocks)
+	fmt.Println(txs.TotalCount)
+	return txs.Txs, int(txs.TotalCount)
 }
 
-func getBlocksForTxResults(node rpcclient.Client, resTxs []*ctypes.ResultTx) (map[int64]*ctypes.ResultBlock, error) {
-	resBlocks := make(map[int64]*ctypes.ResultBlock)
+func getAllGovTxsByQuery(clientCtx client.Context, limit, proposalID int) []*sdk.TxResponse {
+	var txs []*sdk.TxResponse
+	var page = 1
 
-	for _, resTx := range resTxs {
-		if _, ok := resBlocks[resTx.Height]; !ok {
-			resBlock, err := node.Block(context.Background(), &resTx.Height)
-			if err != nil {
-				return nil, err
-			}
-
-			resBlocks[resTx.Height] = resBlock
-		}
+	txs, totalPage := govVoteQueries(clientCtx, page, limit, proposalID)
+	for page <= totalPage {
+		page = page + 1
+		newTxs, _ := govVoteQueries(clientCtx, page, limit, proposalID)
+		txs = append(txs, newTxs...)
 	}
-
-	return resBlocks, nil
-}
-
-func mkTxResult(txConfig client.TxConfig, resTx *ctypes.ResultTx, resBlock *ctypes.ResultBlock) (*sdk.TxResponse, error) {
-	txb, err := txConfig.TxDecoder()(resTx.Tx)
-	if err != nil {
-		return nil, err
-	}
-	p, ok := txb.(intoAny)
-	if !ok {
-		return nil, fmt.Errorf("expecting a type implementing intoAny, got: %T", txb)
-	}
-	any := p.AsAny()
-	return sdk.NewResponseResultTx(resTx, any, resBlock.Block.Time.Format(time.RFC3339)), nil
-}
-
-type intoAny interface {
-	AsAny() *codectypes.Any
-}
-
-// formatTxResults parses the indexed txs into a slice of TxResponse objects.
-func formatTxResults(txConfig client.TxConfig, resTxs []*ctypes.ResultTx, resBlocks map[int64]*ctypes.ResultBlock) ([]*sdk.TxResponse, error) {
-	var err error
-	out := make([]*sdk.TxResponse, len(resTxs))
-	for i := range resTxs {
-		out[i], err = mkTxResult(txConfig, resTxs[i], resBlocks[resTxs[i].Height])
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return out, nil
+	return txs
 }
