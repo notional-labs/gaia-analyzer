@@ -54,7 +54,7 @@ func QueryDatabase() *cobra.Command {
 				// fmt.Sprintf("proposal_vote.proposal_id='%d'", proposalID),
 			}
 
-			data := dbquery.QueryGovTxs(clientCtx, "/home/vuong/.dig", tmEvents)
+			data := dbquery.QueryTxs(clientCtx, "/home/vuong/.dig", tmEvents)
 			fmt.Print(data)
 			return nil
 		},

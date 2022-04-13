@@ -2,13 +2,10 @@ package dbquery
 
 import (
 	"context"
-	"fmt"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	tmquery "github.com/tendermint/tendermint/libs/pubsub/query"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
@@ -24,7 +21,7 @@ func openDB(rootDir string) (dbm.DB, error) {
 	return a, err
 }
 
-func QueryTxs(ctx client.Context, rootDir string, tmEvents []string) []*sdk.TxResponse {
+func QueryTxs(ctx client.Context, rootDir string, tmEvents []string) []*ctypes.ResultTx {
 	// var tmEvents = []string{
 	// 	"message.action='/cosmos.gov.v1beta1.MsgVote'",
 	// 	fmt.Sprintf("proposal_vote.proposal_id='%d'", proposalID),
@@ -44,7 +41,7 @@ func QueryTxs(ctx client.Context, rootDir string, tmEvents []string) []*sdk.TxRe
 	)
 	q, err := tmquery.New(query)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	if err != nil {
@@ -52,10 +49,6 @@ func QueryTxs(ctx client.Context, rootDir string, tmEvents []string) []*sdk.TxRe
 	}
 
 	results, err := txi.Search(context.Background(), q)
-	if err != nil {
-		panic(err)
-	}
-
 	resTxs := make([]*ctypes.ResultTx, 0, len(results))
 
 	for _, r := range results {
@@ -70,49 +63,5 @@ func QueryTxs(ctx client.Context, rootDir string, tmEvents []string) []*sdk.TxRe
 			Proof:    proof,
 		})
 	}
-
-	resBlocks, err := getBlocksForTxResults(resTxs)
-	if err != nil {
-		return nil
-	}
-
-	txs, err := formatTxResults(ctx.TxConfig, resTxs, resBlocks)
-	if err != nil {
-		return nil
-	}
-
-	return txs
-}
-
-// formatTxResults parses the indexed txs into a slice of TxResponse objects.
-func formatTxResults(txConfig client.TxConfig, resTxs []*ctypes.ResultTx, resBlocks map[int64]*ctypes.ResultBlock) ([]*sdk.TxResponse, error) {
-	var err error
-	out := make([]*sdk.TxResponse, len(resTxs))
-	for i := range resTxs {
-		out[i], err = mkTxResult(txConfig, resTxs[i], resBlocks[resTxs[i].Height])
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return out, nil
-}
-
-func mkTxResult(txConfig client.TxConfig, resTx *ctypes.ResultTx, resBlock *ctypes.ResultBlock) (*sdk.TxResponse, error) {
-	txb, err := txConfig.TxDecoder()(resTx.Tx)
-	if err != nil {
-		return nil, err
-	}
-	p, ok := txb.(intoAny)
-	if !ok {
-		return nil, fmt.Errorf("expecting a type implementing intoAny, got: %T", txb)
-	}
-	any := p.AsAny()
-	return sdk.NewResponseResultTx(resTx, any, resBlock.Block.Time.Format(time.RFC3339)), nil
-}
-
-// Deprecated: this interface is used only internally for scenario we are
-// deprecating (StdTxConfig support)
-type intoAny interface {
-	AsAny() *codectypes.Any
+	return resTxs
 }

@@ -11,36 +11,36 @@ import (
 func GetGovVoteData(clientCtx client.Context, proposalId int) map[string]types.Vote {
 	voteResult := make(map[string]types.Vote)
 
-	txs := getAllGovTxsByQuery(clientCtx, 100, proposalId)
+	txs := govVoteQueries(clientCtx, proposalId)
 
 	for _, txRes := range txs {
-		voterAddress := string(txRes.Events[0].Attributes[0].GetValue())
+		voterAddress := string(txRes.TxResult.Events[0].Attributes[0].GetValue())
 		_, ok := voteResult[voterAddress]
 
 		if ok && txRes.Height < voteResult[voterAddress].Height {
 			continue
 		}
 
-		if txRes.Code != 0 {
+		if txRes.TxResult.Code != 0 {
 			continue
 		}
 
-		if len(txRes.Events) == 6 {
+		if len(txRes.TxResult.Events) == 6 {
 			voteResult[voterAddress] = types.Vote{
-				Option:     getOption(string(txRes.Events[4].Attributes[0].GetValue())),
+				Option:     getOption(string(txRes.TxResult.Events[4].Attributes[0].GetValue())),
 				ProposalId: proposalId,
 				Height:     txRes.Height,
-				TxHash:     txRes.TxHash,
+				TxHash:     string(txRes.Hash),
 			}
 			continue
 
 		}
 
 		voteResult[voterAddress] = types.Vote{
-			Option:     getOption(string(txRes.Events[8].Attributes[0].GetValue())),
+			Option:     getOption(string(txRes.TxResult.Events[8].Attributes[0].GetValue())),
 			ProposalId: proposalId,
 			Height:     txRes.Height,
-			TxHash:     txRes.TxHash,
+			TxHash:     txRes.Hash.String(),
 		}
 	}
 	fmt.Println(len(voteResult))
