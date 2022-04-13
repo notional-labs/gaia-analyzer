@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	tmquery "github.com/tendermint/tendermint/libs/pubsub/query"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
@@ -22,6 +20,17 @@ func openDB(rootDir string) (dbm.DB, error) {
 	dataDir := filepath.Join(rootDir, "data")
 	a, err := sdk.NewLevelDB("tx_index", dataDir)
 	return a, err
+}
+
+func QueryBankSendAtomFromAddress(ctx client.Context, rootDir string, sender string) []*sdk.TxResponse {
+	senderEvent := fmt.Sprintf("%s='%s'", "message.sender", sender)
+	bankSendEvent := fmt.Sprintf("%s='%s'", "message.action", "/cosmos.bank.v1beta1.MsgSend")
+
+	tmEvents := []string{senderEvent, bankSendEvent}
+
+	page := 1
+	limit := 10
+
 }
 
 func QueryGovTxs(ctx client.Context, rootDir string, tmEvents []string) []*sdk.TxResponse {
@@ -79,59 +88,4 @@ func QueryGovTxs(ctx client.Context, rootDir string, tmEvents []string) []*sdk.T
 	}
 
 	return txs
-}
-
-func getBlocksForTxResults(clientCtx client.Context, resTxs []*ctypes.ResultTx) (map[int64]*ctypes.ResultBlock, error) {
-	node, err := clientCtx.GetNode()
-	if err != nil {
-		return nil, err
-	}
-
-	resBlocks := make(map[int64]*ctypes.ResultBlock)
-
-	for _, resTx := range resTxs {
-		if _, ok := resBlocks[resTx.Height]; !ok {
-			resBlock, err := node.Block(context.Background(), &resTx.Height)
-			if err != nil {
-				return nil, err
-			}
-
-			resBlocks[resTx.Height] = resBlock
-		}
-	}
-
-	return resBlocks, nil
-}
-
-func mkTxResult(txConfig client.TxConfig, resTx *ctypes.ResultTx, resBlock *ctypes.ResultBlock) (*sdk.TxResponse, error) {
-	txb, err := txConfig.TxDecoder()(resTx.Tx)
-	if err != nil {
-		return nil, err
-	}
-	p, ok := txb.(intoAny)
-	if !ok {
-		return nil, fmt.Errorf("expecting a type implementing intoAny, got: %T", txb)
-	}
-	any := p.AsAny()
-	return sdk.NewResponseResultTx(resTx, any, resBlock.Block.Time.Format(time.RFC3339)), nil
-}
-
-// Deprecated: this interface is used only internally for scenario we are
-// deprecating (StdTxConfig support)
-type intoAny interface {
-	AsAny() *codectypes.Any
-}
-
-// formatTxResults parses the indexed txs into a slice of TxResponse objects.
-func formatTxResults(txConfig client.TxConfig, resTxs []*ctypes.ResultTx, resBlocks map[int64]*ctypes.ResultBlock) ([]*sdk.TxResponse, error) {
-	var err error
-	out := make([]*sdk.TxResponse, len(resTxs))
-	for i := range resTxs {
-		out[i], err = mkTxResult(txConfig, resTxs[i], resBlocks[resTxs[i].Height])
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return out, nil
 }
