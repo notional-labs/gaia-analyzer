@@ -45,3 +45,20 @@ func getHeight(latestHeight int64, heightPtr *int64) (int64, error) {
 	}
 	return latestHeight, nil
 }
+
+func getBlocksForTxResults(resTxs []*ctypes.ResultTx) (map[int64]*ctypes.ResultBlock, error) {
+	resBlocks := make(map[int64]*ctypes.ResultBlock)
+
+	for _, resTx := range resTxs {
+		if _, ok := resBlocks[resTx.Height]; !ok {
+			resBlock, err := Block(&resTx.Height)
+			if err != nil {
+				return nil, err
+			}
+
+			resBlocks[resTx.Height] = resBlock
+		}
+	}
+
+	return resBlocks, nil
+}
