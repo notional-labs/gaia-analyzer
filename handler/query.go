@@ -13,17 +13,16 @@ import (
 	"github.com/notional-labs/gaia-analyzer/types"
 )
 
-//
-func GetBankSendFromAddress(clientCtx client.Context, sender string, beginHeight int64) {
-
+// query txs that send atom from a given address since a given height. Push those txs to global tx queue
+func GetBankSendAtomFromAddress(clientCtx client.Context, sender string, beginHeight int64) {
+	fmt.Println(beginHeight)
+	// events use for query
 	senderEvent := fmt.Sprintf("%s='%s'", "message.sender", sender)
-
 	bankSendEvent := fmt.Sprintf("%s='%s'", "message.action", "/cosmos.bank.v1beta1.MsgSend")
-
 	tmEvents := []string{senderEvent, bankSendEvent}
 
 	page := 1
-	limit := 100
+	limit := 10
 
 	// query txs by events
 	txs, err := authtx.QueryTxsByEvents(clientCtx.WithHeight(beginHeight), tmEvents, page, limit, "")
@@ -32,24 +31,29 @@ func GetBankSendFromAddress(clientCtx client.Context, sender string, beginHeight
 	}
 
 	// push to tx queue
+	// A priority of txs with priority indicator being the tx height
 	for _, tx := range txs.Txs {
-		timeTx := types.TimeTx{
-			Tx: tx,
+		if IsBankSendAtomTx(tx) {
+			TxItemWrapper := types.TxItemWrapper{
+				Tx: tx,
+			}
+			heap.Push(&TxQueue, &TxItemWrapper)
+			fmt.Println(ParseBankSendTxEvent(tx))
+			fmt.Print(tx.Height)
 		}
-		heap.Push(&TxQueue, timeTx)
 	}
 }
 
-func GetBankSendToAddress(clientCtx client.Context, receiver string, beginHeight int64) {
-
+// query txs that send atom to a given address since a given height. Push those txs to global tx queue
+func GetBankSendAtomToAddress(clientCtx client.Context, receiver string, beginHeight int64) {
+	fmt.Println(beginHeight)
+	// events use for query
 	senderEvent := fmt.Sprintf("%s='%s'", "coin_received.receiver", receiver)
-
 	bankSendEvent := fmt.Sprintf("%s='%s'", "message.action", "/cosmos.bank.v1beta1.MsgSend")
-
 	tmEvents := []string{senderEvent, bankSendEvent}
 
 	page := 1
-	limit := 100
+	limit := 10
 
 	// query txs by events
 	txs, err := authtx.QueryTxsByEvents(clientCtx.WithHeight(beginHeight), tmEvents, page, limit, "")
@@ -58,14 +62,20 @@ func GetBankSendToAddress(clientCtx client.Context, receiver string, beginHeight
 	}
 
 	// push to tx queue
+	// A priority of txs with priority indicator being the tx height
 	for _, tx := range txs.Txs {
-		timeTx := types.TimeTx{
-			Tx: tx,
+		if IsBankSendAtomTx(tx) {
+			TxItemWrapper := types.TxItemWrapper{
+				Tx: tx,
+			}
+			heap.Push(&TxQueue, &TxItemWrapper)
+			fmt.Println(ParseBankSendTxEvent(tx))
+			fmt.Print(tx.Height)
 		}
-		heap.Push(&TxQueue, timeTx)
 	}
 }
 
+// get atom amount a given account has at a given height
 func GetAtomBalanceAtHeight(clientCtx client.Context, addressStr string, height int64) float64 {
 	queryClient := banktypes.NewQueryClient(clientCtx.WithHeight(height))
 	addr, err := sdk.AccAddressFromBech32(addressStr)
