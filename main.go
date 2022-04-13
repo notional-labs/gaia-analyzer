@@ -22,6 +22,7 @@ func main() {
 
 	rootCmd.AddCommand(
 		cmd.GovCommand(),
+		cmd.QueryDatabase(),
 	)
 
 	if err := svrcmd.Execute(rootCmd, app.DefaultNodeHome); err != nil {
