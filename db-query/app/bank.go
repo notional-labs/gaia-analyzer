@@ -15,6 +15,6 @@ func GetUatomBalanceAtHeight(address string, height int64) (sdk.Int, error) {
 	if err != nil {
 		return sdk.ZeroInt(), err
 	}
-	coin := EmptyApp.BankKeeper.GetBalance(*ctx, accAddress, data.TrackedDenom)
+	coin := EmptyApp.BankKeeper.GetBalance(ctx, accAddress, data.TrackedDenom)
 	return coin.Amount, nil
 }
