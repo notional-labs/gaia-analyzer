@@ -20,7 +20,7 @@ func main() {
 
 	dbquery.Init("/Users/khanh/.dig")
 
-	data.TrackedDenom = "stake"
+	data.Denom = "stake"
 	// data, err := appquery.GetUatomBalanceAtHeight("cosmos1d9725dhaq06mayzfn8ape3kcfn8lmuypquutu6", 2)
 	// if err != nil {
 	// 	panic(err)
@@ -42,7 +42,7 @@ func main() {
 	// 		// if err != nil {
 	// 		// 	return err
 	// 		// }
-	// 		// data.TrackedDenom = trackedDenom
+	// 		// data.Denom = trackedDenom
 
 	// 		rootDir, err := cmd.Flags().GetString(RootDirFlag)
 	// 		if err != nil {

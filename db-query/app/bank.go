@@ -6,8 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// We use the baseapp.QueryRouter here to do inter-module state querying.
-// PLEASE DO NOT REPLICATE THIS PATTERN IN YOUR OWN APP.
 func GetUatomBalanceAtHeight(address string, height int64) (sdk.Int, error) {
 	ctx := GetQueryContext(height)
 
@@ -15,6 +13,6 @@ func GetUatomBalanceAtHeight(address string, height int64) (sdk.Int, error) {
 	if err != nil {
 		return sdk.ZeroInt(), err
 	}
-	coin := EmptyApp.BankKeeper.GetBalance(*ctx, accAddress, data.TrackedDenom)
+	coin := EmptyApp.BankKeeper.GetBalance(*ctx, accAddress, data.Denom)
 	return coin.Amount, nil
 }

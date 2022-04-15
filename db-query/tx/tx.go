@@ -89,6 +89,6 @@ func QueryTxsAndPushToTxQueue(tmEvents []string) {
 			Height: r.Height,
 			Events: &r.Result.Events,
 		}
-		heap.Push(&data.TxQueue, txItem)
+		heap.Push(&data.TrackedTxQueue, txItem)
 	}
 }

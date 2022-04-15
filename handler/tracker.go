@@ -19,14 +19,14 @@ func calSentTrackedUatomAmount(atomBalance sdk.Int, trackedUatomBalance sdk.Int,
 	return sentUatomAmount.Mul(trackedUatomBalance).Quo(atomBalance)
 }
 
-// updates atom balance to UatomBalance
+// updates atom balance to Balance
 func updateUatomBalance(address string, height int64) sdk.Int {
 
 	uatomBalance, err := appquery.GetUatomBalanceAtHeight(address, height)
 	if err != nil {
 		panic(err)
 	}
-	data.UatomBalance[address] = uatomBalance
+	data.Balance[address] = uatomBalance
 
 	return uatomBalance
 }
@@ -37,12 +37,12 @@ func handle_tx(tx *types.TxItem) string {
 	sender, recipient, sentUatomAmount := ParseBankSendTxEvent(tx.Events)
 	// cal amount of tracked atom sent using blended, not FIFO
 	senderUatomBalance := updateUatomBalance(sender, height-1)
-	sentTrackedUatomAmount := calSentTrackedUatomAmount(senderUatomBalance, data.TrackedUatomBalance[sender], sentUatomAmount)
+	sentTrackedUatomAmount := calSentTrackedUatomAmount(senderUatomBalance, data.TrackedBalance[sender], sentUatomAmount)
 	// update tracked atom balance for recipient account and sender account
-	fmt.Println(senderUatomBalance, data.TrackedUatomBalance[sender], sentUatomAmount)
+	fmt.Println(senderUatomBalance, data.TrackedBalance[sender], sentUatomAmount)
 	fmt.Printf("%s send %s tracked coins (%s coins) to %s at height %d \n", sender, sentTrackedUatomAmount.String(), sentUatomAmount, recipient, height)
-	data.TrackedUatomBalance[recipient] = data.TrackedUatomBalance[recipient].Add(sentTrackedUatomAmount)
-	data.TrackedUatomBalance[sender] = data.TrackedUatomBalance[sender].Sub(sentTrackedUatomAmount)
+	data.TrackedBalance[recipient] = data.TrackedBalance[recipient].Add(sentTrackedUatomAmount)
+	data.TrackedBalance[sender] = data.TrackedBalance[sender].Sub(sentTrackedUatomAmount)
 
 	return sender
 }
@@ -51,8 +51,8 @@ func handle_tx(tx *types.TxItem) string {
 func TrackCoinsFromAccount(rootAddress string, startHeight int64) {
 
 	// get all bank send from root address and to root address, push to global tx queue
-	txquery.GetBankSendUatomFromAddress(rootAddress, startHeight)
-	txquery.GetBankSendUatomToAddress(rootAddress, startHeight)
+	txquery.TrackTxsSpendingCoinsFromAccount(rootAddress, startHeight)
+	txquery.TrackTxsSendingCoinsToAccount(rootAddress, startHeight)
 
 	data.IsTrackedAccount[rootAddress] = true
 
@@ -63,18 +63,18 @@ func TrackCoinsFromAccount(rootAddress string, startHeight int64) {
 	}
 	// update atom balance and tracked atom balance of root address
 	// tracked atom balance = atom balance at start height since we have to track all atoms from root account balance at that height
-	data.UatomBalance[rootAddress] = atomAmountInThisAccount
-	data.TrackedUatomBalance[rootAddress] = atomAmountInThisAccount
+	data.Balance[rootAddress] = atomAmountInThisAccount
+	data.TrackedBalance[rootAddress] = atomAmountInThisAccount
 
 	for {
 		// if tx queue empty, stop
-		if len(data.TxQueue) == 0 {
+		if len(data.TrackedTxQueue) == 0 {
 			break
 		}
 
 		// get next tx from tx queue
 		// tx queue : priority queue of txs with priority indicator being the tx's height
-		tx := heap.Pop(&data.TxQueue).(*types.TxItem)
+		tx := heap.Pop(&data.TrackedTxQueue).(*types.TxItem)
 		// apply handle tx, output sender of tx
 		sender, recepient, _ := ParseBankSendTxEvent(tx.Events)
 
@@ -83,7 +83,7 @@ func TrackCoinsFromAccount(rootAddress string, startHeight int64) {
 
 		handle_tx(tx)
 	}
-	fmt.Println(data.TrackedUatomBalance)
+	fmt.Println(data.TrackedBalance)
 }
 
 func TrackAccount(address string, height int64) {
@@ -92,8 +92,8 @@ func TrackAccount(address string, height int64) {
 	// query BankSend tx this account sent starting from this tx height and push to tx queue
 	if !isTracked {
 		data.IsTrackedAccount[address] = true
-		data.TrackedUatomBalance[address] = sdk.ZeroInt()
-		txquery.GetBankSendUatomFromAddress(address, height)
+		data.TrackedBalance[address] = sdk.ZeroInt()
+		txquery.TrackTxsSpendingCoinsFromAccount(address, height)
 	}
 }
 
@@ -112,7 +112,7 @@ func ParseBankSendTxEvent(events *[]abcitypes.Event) (string, string, sdk.Int) {
 					recipient = string(attribute.Value)
 				case "amount":
 					// get amount from stringify sdk.Coin
-					amount, _ = sdk.NewIntFromString(strings.Trim(string(attribute.Value), data.TrackedDenom))
+					amount, _ = sdk.NewIntFromString(strings.Trim(string(attribute.Value), data.Denom))
 				}
 			}
 		}
