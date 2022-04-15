@@ -21,15 +21,14 @@ func calSentTrackedUatomAmount(atomBalance sdk.Int, trackedUatomBalance sdk.Int,
 
 // updates atom balance to UatomBalance
 func updateUatomBalance(address string, height int64) sdk.Int {
-	balance, ok := data.UatomBalance[address]
-	if !ok {
-		atomBalance, err := appquery.GetUatomBalanceAtHeight(address, height)
-		if err != nil {
-			panic(err)
-		}
-		data.UatomBalance[address] = atomBalance
+
+	uatomBalance, err := appquery.GetUatomBalanceAtHeight(address, height)
+	if err != nil {
+		panic(err)
 	}
-	return balance
+	data.UatomBalance[address] = uatomBalance
+
+	return uatomBalance
 }
 
 // Apply bank send tx, update tracked atom balance after tx
@@ -38,8 +37,10 @@ func handle_tx(tx *types.TxItem) string {
 	sender, recipient, sentUatomAmount := ParseBankSendTxEvent(tx.Events)
 	// cal amount of tracked atom sent using blended, not FIFO
 	senderUatomBalance := updateUatomBalance(sender, height)
+	fmt.Println(senderUatomBalance, data.TrackedUatomBalance[sender], sentUatomAmount)
 	sentTrackedUatomAmount := calSentTrackedUatomAmount(senderUatomBalance, data.TrackedUatomBalance[sender], sentUatomAmount)
 	// update tracked atom balance for recipient account and sender account
+	fmt.Println("tracked coin sent", sentTrackedUatomAmount)
 	data.TrackedUatomBalance[recipient] = data.TrackedUatomBalance[recipient].Add(sentTrackedUatomAmount)
 	data.TrackedUatomBalance[sender] = data.TrackedUatomBalance[sender].Sub(sentTrackedUatomAmount)
 
@@ -52,6 +53,9 @@ func TrackCoinsFromAccount(rootAddress string, startHeight int64) {
 	// get all bank send from root address and to root address, push to global tx queue
 	txquery.GetBankSendUatomFromAddress(rootAddress, startHeight)
 	txquery.GetBankSendUatomToAddress(rootAddress, startHeight)
+
+	data.IsTrackedAccount[rootAddress] = true
+
 	// query chain to get root account atom balance at start height
 	atomAmountInThisAccount, err := appquery.GetUatomBalanceAtHeight(rootAddress, startHeight)
 	if err != nil {
@@ -74,19 +78,20 @@ func TrackCoinsFromAccount(rootAddress string, startHeight int64) {
 		// apply handle tx, output sender of tx
 		sender, recepient, _ := ParseBankSendTxEvent(tx.Events)
 
-		MarkTrackedAccount(sender, tx.Height)
-		MarkTrackedAccount(recepient, tx.Height)
+		TrackAccount(sender, tx.Height)
+		TrackAccount(recepient, tx.Height)
 
 		handle_tx(tx)
 	}
 	fmt.Printf("%+v", data.TrackedUatomBalance)
 }
 
-func MarkTrackedAccount(address string, height int64) {
+func TrackAccount(address string, height int64) {
 	_, isTracked := data.IsTrackedAccount[address]
 	// if this account is not tracked yet, this means this account has not received any tracked atom before this tx
 	// query BankSend tx this account sent starting from this tx height and push to tx queue
 	if !isTracked {
+		data.IsTrackedAccount[address] = true
 		data.TrackedUatomBalance[address] = sdk.ZeroInt()
 		txquery.GetBankSendUatomFromAddress(address, height)
 	}
