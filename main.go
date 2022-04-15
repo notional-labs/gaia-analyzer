@@ -6,13 +6,10 @@ import (
 
 	// "github.com/notional-labs/gaia-analyzer/cmd"
 
-<<<<<<< HEAD
 	"os"
 
 	"github.com/notional-labs/gaia-analyzer/cmd"
-=======
 	"github.com/notional-labs/gaia-analyzer/data"
->>>>>>> origin/coin-tracker
 	dbquery "github.com/notional-labs/gaia-analyzer/db-query"
 	"github.com/spf13/cobra"
 	// "github.com/spf13/cobra"
