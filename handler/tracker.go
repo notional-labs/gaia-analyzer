@@ -72,18 +72,24 @@ func TrackCoinsFromAccount(rootAddress string, startHeight int64) {
 		// tx queue : priority queue of txs with priority indicator being the tx's height
 		tx := heap.Pop(&data.TxQueue).(*types.TxItem)
 		// apply handle tx, output sender of tx
-		fmt.Println(tx.Events)
-		sender := handle_tx(tx)
+		sender, recepient, _ := ParseBankSendTxEvent(tx.Events)
 
-		_, isTracked := data.IsTrackedAccount[sender]
-		// if this account is not tracked yet, this means this account has not received any tracked atom before this tx
-		// query BankSend tx this account sent starting from this tx height and push to tx queue
-		if !isTracked {
-			data.TrackedUatomBalance[sender] = sdk.ZeroInt()
-			txquery.GetBankSendUatomFromAddress(sender, tx.Height)
-		}
+		MarkTrackedAccount(sender, tx.Height)
+		MarkTrackedAccount(recepient, tx.Height)
+
+		handle_tx(tx)
 	}
 	fmt.Printf("%+v", data.TrackedUatomBalance)
+}
+
+func MarkTrackedAccount(address string, height int64) {
+	_, isTracked := data.IsTrackedAccount[address]
+	// if this account is not tracked yet, this means this account has not received any tracked atom before this tx
+	// query BankSend tx this account sent starting from this tx height and push to tx queue
+	if !isTracked {
+		data.TrackedUatomBalance[address] = sdk.ZeroInt()
+		txquery.GetBankSendUatomFromAddress(address, height)
+	}
 }
 
 // parse events from bank send tx, return sender, recipient and amount sent
