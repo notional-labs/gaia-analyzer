@@ -4,11 +4,13 @@ import (
 
 	// "os"
 
-	"github.com/notional-labs/gaia-analyzer/cmd"
+	// "github.com/notional-labs/gaia-analyzer/cmd"
 
 	"os"
 
+	"github.com/notional-labs/gaia-analyzer/cmd"
 	dbquery "github.com/notional-labs/gaia-analyzer/db-query"
+	"github.com/notional-labs/gaia-analyzer/handler"
 	"github.com/spf13/cobra"
 	// "github.com/spf13/cobra"
 )
@@ -25,6 +27,34 @@ func main() {
 	// data, err := appquery.GetUatomBalanceAtHeight("cosmos1d9725dhaq06mayzfn8ape3kcfn8lmuypquutu6", 2)
 	// if err != nil {
 	// 	panic(err)
+	// }
+	// data, err = appquery.GetUatomBalanceAtHeight("cosmos1d9725dhaq06mayzfn8ape3kcfn8lmuypquutu6", 2)
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	handler.TrackCoinsFromAccount("cosmos1dq07qh6rc489le9wjlh9p3n5em3u24vwy94lxr", 1)
+
+	// rootCmd := &cobra.Command{
+	// 	Use:   "bounty7",
+	// 	Short: "bounty7 gnolang solution",
+
+	// 	PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
+
+	// 		// trackedDenom, err := cmd.Flags().GetString(TrackedDenomFlag)
+	// 		// if err != nil {
+	// 		// 	return err
+	// 		// }
+	// 		// data.TrackedDenom = trackedDenom
+
+	// 		rootDir, err := cmd.Flags().GetString(RootDirFlag)
+	// 		if err != nil {
+	// 			return err
+	// 		}
+	// 		dbquery.Init(rootDir)
+
+	// 		return nil
+	// 	},
 	// }
 	// fmt.Println(data)
 	// data, err = appquery.GetUatomBalanceAtHeight("cosmos1d9725dhaq06mayzfn8ape3kcfn8lmuypquutu6", 2)

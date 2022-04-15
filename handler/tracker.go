@@ -37,10 +37,9 @@ func handle_tx(tx *types.TxItem) string {
 	sender, recipient, sentUatomAmount := ParseBankSendTxEvent(tx.Events)
 	// cal amount of tracked atom sent using blended, not FIFO
 	senderUatomBalance := updateUatomBalance(sender, height)
-	fmt.Println(senderUatomBalance, data.TrackedUatomBalance[sender], sentUatomAmount)
 	sentTrackedUatomAmount := calSentTrackedUatomAmount(senderUatomBalance, data.TrackedUatomBalance[sender], sentUatomAmount)
 	// update tracked atom balance for recipient account and sender account
-	fmt.Println("tracked coin sent", sentTrackedUatomAmount)
+	fmt.Printf("%s send %s tracked coins to %s \n", sender, sentTrackedUatomAmount.String(), recipient)
 	data.TrackedUatomBalance[recipient] = data.TrackedUatomBalance[recipient].Add(sentTrackedUatomAmount)
 	data.TrackedUatomBalance[sender] = data.TrackedUatomBalance[sender].Sub(sentTrackedUatomAmount)
 
@@ -83,7 +82,6 @@ func TrackCoinsFromAccount(rootAddress string, startHeight int64) {
 
 		handle_tx(tx)
 	}
-	fmt.Printf("%+v", data.TrackedUatomBalance)
 }
 
 func TrackAccount(address string, height int64) {
