@@ -20,7 +20,7 @@ type LowestHeightFirstOutTxQueue []*TxItem
 func (q LowestHeightFirstOutTxQueue) Len() int { return len(q) }
 
 func (q LowestHeightFirstOutTxQueue) Less(i, j int) bool {
-	return q[i].Height > q[j].Height
+	return q[i].Height < q[j].Height
 }
 
 func (q LowestHeightFirstOutTxQueue) Swap(i, j int) {
