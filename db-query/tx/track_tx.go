@@ -20,7 +20,7 @@ func TrackTxsSpendingCoinsFromAccount(spender string, fromHeight int64) {
 	}
 }
 
-// query txs that send atom to a given address since a given height. Push those txs to global tx queue
+// query txs that send atom to a given address since a given height. Push those txs to tracked tx queue
 func TrackTxsSendingCoinsToAccount(receiver string, fromHeight int64) {
 	// events use for query
 	receivingEvent := fmt.Sprintf("%s='%s'", "coin_received.receiver", receiver)

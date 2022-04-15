@@ -9,7 +9,31 @@ import (
 	abcitypes "github.com/tendermint/tendermint/abci/types"
 )
 
-func IsUndelegateTx()
+func GetEventItemFromTxResult(txResult *abcitypes.TxResult) *types.EventItem {
+	coinSpentEvent := txResult.Result.Events[1]
+	if !strings.Contains(string(coinSpentEvent.Attributes[1].Value), data.Denom) {
+		return nil
+	}
+
+	coinReceivedEvent := txResult.Result.Events[0]
+	coinMovingEvents := &[]*types.CoinMovingEvent{}
+	for i := range coinSpentEvent {
+
+		from := coinSpentEvent[i].Attributes[]
+
+
+		coinReceivedEvent := &[]
+
+
+	}
+
+
+
+	// if len(tx)
+
+
+
+}
 
 // check if this bank send tx is bank send atom
 func IsBankSendUatomTx(events *[]abcitypes.Event) bool {
@@ -30,7 +54,7 @@ func IsBankSendUatomTx(events *[]abcitypes.Event) bool {
 }
 
 func PushToTrackedTxQueue(tx *abcitypes.TxResult) {
-	txItem := types.TxItem{
+	txItem := types.EventItem{
 		Height: tx.Height,
 		Events: &tx.Result.Events,
 	}

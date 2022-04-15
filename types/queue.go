@@ -2,42 +2,48 @@
 package types
 
 import (
-	abcitypes "github.com/tendermint/tendermint/abci/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+type CoinMovingEvent struct {
+	From   string
+	To     string
+	Amount *sdk.Int
+}
+
 // tx item to put into queue
-type TxItem struct {
+type EventItem struct {
 	Height int64
 
-	Events *[]abcitypes.Event
+	Events *[]*CoinMovingEvent
 
 	index int // The index of the item in the heap.
 }
 
 // A priority of txs with priority indicator being the tx height
-type LowestHeightFirstOutTxQueue []*TxItem
+type LowestHeightFirstOutEventQueue []*EventItem
 
-func (q LowestHeightFirstOutTxQueue) Len() int { return len(q) }
+func (q LowestHeightFirstOutEventQueue) Len() int { return len(q) }
 
-func (q LowestHeightFirstOutTxQueue) Less(i, j int) bool {
+func (q LowestHeightFirstOutEventQueue) Less(i, j int) bool {
 	return q[i].Height < q[j].Height
 }
 
-func (q LowestHeightFirstOutTxQueue) Swap(i, j int) {
+func (q LowestHeightFirstOutEventQueue) Swap(i, j int) {
 	q[i], q[j] = q[j], q[i]
 	q[i].index = i
 	q[j].index = j
 }
 
-func (q *LowestHeightFirstOutTxQueue) Push(x any) {
+func (q *LowestHeightFirstOutEventQueue) Push(x any) {
 	n := len(*q)
-	item := x.(*TxItem)
+	item := x.(*EventItem)
 	item.index = n
 	*q = append(*q, item)
 }
 
 // pop return the tx with lowest height
-func (q *LowestHeightFirstOutTxQueue) Pop() any {
+func (q *LowestHeightFirstOutEventQueue) Pop() any {
 	old := *q
 	n := len(old)
 	item := old[n-1]

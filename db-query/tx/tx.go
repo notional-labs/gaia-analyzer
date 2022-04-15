@@ -1,14 +1,11 @@
 package tx
 
 import (
-	"container/heap"
 	"context"
 	"path/filepath"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/notional-labs/gaia-analyzer/data"
-	"github.com/notional-labs/gaia-analyzer/types"
 	abcitypes "github.com/tendermint/tendermint/abci/types"
 	tmquery "github.com/tendermint/tendermint/libs/pubsub/query"
 	"github.com/tendermint/tendermint/state/txindex/kv"
@@ -61,34 +58,34 @@ func QueryTxs(tmEvents []string) []*abcitypes.TxResult {
 	return results
 }
 
-// query txs event and push to global tx queue
-func QueryTxsAndPushToTxQueue(tmEvents []string) {
-	// var tmEvents = []string{
-	// 	"message.action='/cosmos.gov.v1beta1.MsgVote'",
-	// 	fmt.Sprintf("proposal_vote.proposal_id='%d'", proposalID),
-	// }
-	//tm events like that
-	query := strings.Join(tmEvents, " AND ")
+// // query txs event and push to global tx queue
+// func QueryTxsAndTrackTxEvents(tmEvents []string) {
+// 	// var tmEvents = []string{
+// 	// 	"message.action='/cosmos.gov.v1beta1.MsgVote'",
+// 	// 	fmt.Sprintf("proposal_vote.proposal_id='%d'", proposalID),
+// 	// }
+// 	//tm events like that
+// 	query := strings.Join(tmEvents, " AND ")
 
-	q, err := tmquery.New(query)
-	if err != nil {
-		panic(err)
-	}
+// 	q, err := tmquery.New(query)
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	if err != nil {
-		panic(err)
-	}
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	results, err := TxIndexer.Search(context.Background(), q)
-	if err != nil {
-		panic(err)
-	}
+// 	results, err := TxIndexer.Search(context.Background(), q)
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	for _, r := range results {
-		txItem := types.TxItem{
-			Height: r.Height,
-			Events: &r.Result.Events,
-		}
-		heap.Push(&data.TrackedTxQueue, txItem)
-	}
-}
+// 	for _, r := range results {
+// 		txItem := types.TxItem{
+// 			Height: r.Height,
+// 			Events: &r.Result.Events,
+// 		}
+// 		heap.Push(&data.TrackedTxQueue, txItem)
+// 	}
+// }

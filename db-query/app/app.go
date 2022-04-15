@@ -14,7 +14,10 @@ var (
 	EmptyApp *simapp.SimApp
 	// multi store taken from application.db
 	Cms sdk.CommitMultiStore
-	// Used to access to application state at height
+	// Used to access to application state at current height
+	CurrentQueryContext *sdk.Context
+
+	CurrentHeight int64
 )
 
 func InitApp() {
@@ -43,14 +46,18 @@ func OpenAppDB(rootDir string) (dbm.DB, error) {
 	return a, err
 }
 
-func GetQueryContext(height int64) sdk.Context {
+func GetQueryContext(height int64) *sdk.Context {
+	if CurrentHeight == height {
+		return CurrentQueryContext
+	}
 	cacheMS, err := Cms.CacheMultiStoreWithVersion(height)
 	if err != nil {
 		panic(err)
 	}
 
-	ctx := sdk.NewContext(
+	CurrentQueryContext = sdk.NewRefContext(
 		cacheMS, tmproto.Header{}, true, nil,
 	)
-	return ctx
+
+	return CurrentQueryContext
 }

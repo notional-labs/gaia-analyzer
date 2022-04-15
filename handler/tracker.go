@@ -10,7 +10,6 @@ import (
 	appquery "github.com/notional-labs/gaia-analyzer/db-query/app"
 	txquery "github.com/notional-labs/gaia-analyzer/db-query/tx"
 	"github.com/notional-labs/gaia-analyzer/types"
-	abcitypes "github.com/tendermint/tendermint/abci/types"
 )
 
 // cal tracked atom sent from a tracked account using blended, not FIFO
@@ -32,7 +31,7 @@ func updateUatomBalance(address string, height int64) sdk.Int {
 }
 
 // Apply bank send tx, update tracked atom balance after tx
-func handle_tx(tx *types.TxItem) string {
+func handle_tx(tx *types.EventItem) string {
 	height := tx.Height
 	sender, recipient, sentUatomAmount := ParseBankSendTxEvent(tx.Events)
 	// cal amount of tracked atom sent using blended, not FIFO
@@ -74,7 +73,7 @@ func TrackCoinsFromAccount(rootAddress string, startHeight int64) {
 
 		// get next tx from tx queue
 		// tx queue : priority queue of txs with priority indicator being the tx's height
-		tx := heap.Pop(&data.TrackedTxQueue).(*types.TxItem)
+		tx := heap.Pop(&data.TrackedTxQueue).(*types.EventItem)
 		// apply handle tx, output sender of tx
 		sender, recepient, _ := ParseBankSendTxEvent(tx.Events)
 
@@ -98,7 +97,7 @@ func TrackAccount(address string, height int64) {
 }
 
 // parse events from bank send tx, return sender, recipient and amount sent
-func ParseBankSendTxEvent(events *[]abcitypes.Event) (string, string, sdk.Int) {
+func ParseBankSendTxEvent(events types.EventItem) (string, string, sdk.Int) {
 	var amount sdk.Int
 	var sender, recipient string
 
