@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/simapp"
@@ -41,7 +40,6 @@ func InitCommitMultiStoreAndApp(rootDir string) {
 
 func OpenAppDB(rootDir string) (dbm.DB, error) {
 	dataDir := filepath.Join(rootDir, "data")
-	fmt.Println(dataDir)
 	a, err := sdk.NewLevelDB("application", dataDir)
 	return a, err
 }

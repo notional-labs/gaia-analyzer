@@ -23,7 +23,6 @@ func GovTrackCommand() *cobra.Command {
 			}
 
 			data := handler.GetGovVoteData(proposalID)
-			fmt.Print(data)
 			bs, _ := json.Marshal(data)
 			fmt.Println(string(bs))
 			return nil
