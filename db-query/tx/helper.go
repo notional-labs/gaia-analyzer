@@ -16,7 +16,7 @@ func IsBankSendUatomTx(events *[]abcitypes.Event) bool {
 			for _, attribute := range event.Attributes {
 				if string(attribute.Key) == "amount" {
 					// check if denom of coin sent is atom
-					if strings.Contains(string(attribute.Value), "uatom") {
+					if strings.Contains(string(attribute.Value), data.TrackedDenom) {
 						return true
 					}
 				}
@@ -32,5 +32,5 @@ func PushToTxQueue(tx *abcitypes.TxResult) {
 		Height: tx.Height,
 		Events: &tx.Result.Events,
 	}
-	heap.Push(&data.TxQueue, txItem)
+	heap.Push(&data.TxQueue, &txItem)
 }

@@ -72,6 +72,7 @@ func TrackCoinsFromAccount(rootAddress string, startHeight int64) {
 		// tx queue : priority queue of txs with priority indicator being the tx's height
 		tx := heap.Pop(&data.TxQueue).(*types.TxItem)
 		// apply handle tx, output sender of tx
+		fmt.Println(tx.Events)
 		sender := handle_tx(tx)
 
 		_, isTracked := data.IsTrackedAccount[sender]

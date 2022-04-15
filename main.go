@@ -32,7 +32,7 @@ func main() {
 	}
 	fmt.Println(data)
 
-	handler.TrackCoinsFromAccount("cosmos1d9725dhaq06mayzfn8ape3kcfn8lmuypquutu6", 1)
+	handler.TrackCoinsFromAccount("cosmos1dq07qh6rc489le9wjlh9p3n5em3u24vwy94lxr", 1)
 
 	// rootCmd := &cobra.Command{
 	// 	Use:   "bounty7",
