@@ -10,7 +10,6 @@ import (
 
 	"github.com/notional-labs/gaia-analyzer/cmd"
 	dbquery "github.com/notional-labs/gaia-analyzer/db-query"
-	"github.com/notional-labs/gaia-analyzer/handler"
 	"github.com/spf13/cobra"
 	// "github.com/spf13/cobra"
 )
@@ -33,7 +32,7 @@ func main() {
 	// 	panic(err)
 	// }
 
-	handler.TrackCoinsFromAccount("cosmos1dq07qh6rc489le9wjlh9p3n5em3u24vwy94lxr", 1)
+	// handler.TrackCoinsFromAccount("cosmos1dq07qh6rc489le9wjlh9p3n5em3u24vwy94lxr", 1)
 
 	// rootCmd := &cobra.Command{
 	// 	Use:   "bounty7",
@@ -86,11 +85,12 @@ func main() {
 			return nil
 		},
 	}
-	rootCmd.PersistentFlags().String(RootDirFlag, "/Users/khanh/.dig", "path of chain data")
+	rootCmd.PersistentFlags().String(RootDirFlag, "/home/vuong/.dig", "path of chain data")
 
 	rootCmd.AddCommand(
 		cmd.GovTrackCommand(),
 		cmd.QueryDatabase(),
+		cmd.CoinTrackCommand(),
 	)
 
 	if err := rootCmd.Execute(); err != nil {
