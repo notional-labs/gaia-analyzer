@@ -1,31 +1,68 @@
 package main
 
 import (
-	"os"
+	"fmt"
+	// "os"
 
-	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-	"github.com/notional-labs/dig/app"
-	"github.com/notional-labs/gaia-analyzer/cmd"
-	"github.com/tendermint/spm/cosmoscmd"
+	// "github.com/notional-labs/gaia-analyzer/cmd"
+	"github.com/notional-labs/gaia-analyzer/data"
+	dbquery "github.com/notional-labs/gaia-analyzer/db-query"
+	appquery "github.com/notional-labs/gaia-analyzer/db-query/app"
+	"github.com/notional-labs/gaia-analyzer/handler"
+	// "github.com/spf13/cobra"
+)
+
+var (
+	RootDirFlag = "root_dir"
 )
 
 func main() {
-	rootCmd, _ := cosmoscmd.NewRootCmd(
-		app.Name,
-		app.AccountAddressPrefix,
-		app.DefaultNodeHome,
-		app.Name,
-		app.ModuleBasics,
-		app.New,
-		// this line is used by starport scaffolding # root/arguments
-	)
 
-	rootCmd.AddCommand(
-		cmd.GovCommand(),
-		cmd.QueryDatabase(),
-	)
+	dbquery.Init("/Users/khanh/.dig")
 
-	if err := svrcmd.Execute(rootCmd, app.DefaultNodeHome); err != nil {
-		os.Exit(1)
+	data.TrackedDenom = "stake"
+	data, err := appquery.GetUatomBalanceAtHeight("cosmos1d9725dhaq06mayzfn8ape3kcfn8lmuypquutu6", 2)
+	if err != nil {
+		panic(err)
 	}
+	fmt.Println(data)
+	data, err = appquery.GetUatomBalanceAtHeight("cosmos1d9725dhaq06mayzfn8ape3kcfn8lmuypquutu6", 2)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(data)
+
+	handler.TrackCoinsFromAccount("cosmos1d9725dhaq06mayzfn8ape3kcfn8lmuypquutu6", 1)
+
+	// rootCmd := &cobra.Command{
+	// 	Use:   "bounty7",
+	// 	Short: "bounty7 gnolang solution",
+
+	// 	PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
+
+	// 		// trackedDenom, err := cmd.Flags().GetString(TrackedDenomFlag)
+	// 		// if err != nil {
+	// 		// 	return err
+	// 		// }
+	// 		// data.TrackedDenom = trackedDenom
+
+	// 		rootDir, err := cmd.Flags().GetString(RootDirFlag)
+	// 		if err != nil {
+	// 			return err
+	// 		}
+	// 		dbquery.Init(rootDir)
+
+	// 		return nil
+	// 	},
+	// }
+	// rootCmd.PersistentFlags().String(RootDirFlag, "/Users/khanh/.dig", "path of chain data")
+
+	// rootCmd.AddCommand(
+	// 	cmd.GovCommand(),
+	// 	cmd.QueryDatabase(),
+	// )
+
+	// if err := rootCmd.Execute(); err != nil {
+	// 	os.Exit(1)
+	// }
 }

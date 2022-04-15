@@ -3,16 +3,15 @@ package handler
 import (
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	dbquery "github.com/notional-labs/gaia-analyzer/handler/db-query"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
+	txquery "github.com/notional-labs/gaia-analyzer/db-query/tx"
+	abcitypes "github.com/tendermint/tendermint/abci/types"
 )
 
-func govVoteQueries(clientCtx client.Context, proposalID int) []*ctypes.ResultTx {
+func govVoteQueries(proposalID int) []*abcitypes.TxResult {
 	var tmEvents = []string{
 		"message.action='/cosmos.gov.v1beta1.MsgVote'",
 		fmt.Sprintf("proposal_vote.proposal_id='%d'", proposalID),
 	}
-	txsRes := dbquery.QueryTxs(clientCtx, "/home/vuong/.dig", tmEvents)
+	txsRes := txquery.QueryTxs(tmEvents)
 	return txsRes
 }

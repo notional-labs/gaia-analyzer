@@ -2,50 +2,47 @@
 package types
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	abcitypes "github.com/tendermint/tendermint/abci/types"
 )
 
-type TimeTx struct {
-	Tx *sdk.TxResponse
+// tx item to put into queue
+type TxItem struct {
+	Height int64
+
+	Events *[]abcitypes.Event
 
 	index int // The index of the item in the heap.
 }
 
-// A PriorityQueue implements heap.Interface and holds Items.
-type TxTimeQueue []*TimeTx
+// A priority of txs with priority indicator being the tx height
+type LowestHeightFirstOutTxQueue []*TxItem
 
-func (pq TxTimeQueue) Len() int { return len(pq) }
+func (q LowestHeightFirstOutTxQueue) Len() int { return len(q) }
 
-func (pq TxTimeQueue) Less(i, j int) bool {
-	// We want Pop to give us the highest, not lowest, priority so we use greater than here.
-	return pq[i].Tx.Height > pq[j].Tx.Height
+func (q LowestHeightFirstOutTxQueue) Less(i, j int) bool {
+	return q[i].Height > q[j].Height
 }
 
-func (pq TxTimeQueue) Swap(i, j int) {
-	pq[i], pq[j] = pq[j], pq[i]
-	pq[i].index = i
-	pq[j].index = j
+func (q LowestHeightFirstOutTxQueue) Swap(i, j int) {
+	q[i], q[j] = q[j], q[i]
+	q[i].index = i
+	q[j].index = j
 }
 
-func (pq *TxTimeQueue) Push(item *TimeTx) {
-	n := len(*pq)
+func (q *LowestHeightFirstOutTxQueue) Push(x any) {
+	n := len(*q)
+	item := x.(*TxItem)
 	item.index = n
-	*pq = append(*pq, item)
+	*q = append(*q, item)
 }
 
-func (pq *TxTimeQueue) Pop() *TimeTx {
-	old := *pq
+// pop return the tx with lowest height
+func (q *LowestHeightFirstOutTxQueue) Pop() any {
+	old := *q
 	n := len(old)
 	item := old[n-1]
 	old[n-1] = nil  // avoid memory leak
 	item.index = -1 // for safety
-	*pq = old[0 : n-1]
+	*q = old[0 : n-1]
 	return item
 }
-
-// // update modifies the priority and value of an Item in the queue.
-// func (pq *PriorityQueue) update(item *SimpleTx, value string, priority int) {
-// 	item.Tx =
-// 	item.priority = priority
-// 	heap.Fix(pq, item.index)
-// }
