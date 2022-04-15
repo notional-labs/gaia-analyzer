@@ -1,13 +1,12 @@
 package main
 
 import (
-	"fmt"
+
 	// "os"
 
 	// "github.com/notional-labs/gaia-analyzer/cmd"
-	"github.com/notional-labs/gaia-analyzer/data"
+
 	dbquery "github.com/notional-labs/gaia-analyzer/db-query"
-	appquery "github.com/notional-labs/gaia-analyzer/db-query/app"
 	"github.com/notional-labs/gaia-analyzer/handler"
 	// "github.com/spf13/cobra"
 )
@@ -20,17 +19,15 @@ func main() {
 
 	dbquery.Init("/Users/khanh/.dig")
 
-	data.TrackedDenom = "stake"
-	data, err := appquery.GetUatomBalanceAtHeight("cosmos1d9725dhaq06mayzfn8ape3kcfn8lmuypquutu6", 2)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(data)
-	data, err = appquery.GetUatomBalanceAtHeight("cosmos1d9725dhaq06mayzfn8ape3kcfn8lmuypquutu6", 2)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(data)
+	// data.TrackedDenom = "stake"
+	// data, err := appquery.GetUatomBalanceAtHeight("cosmos1d9725dhaq06mayzfn8ape3kcfn8lmuypquutu6", 2)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// data, err = appquery.GetUatomBalanceAtHeight("cosmos1d9725dhaq06mayzfn8ape3kcfn8lmuypquutu6", 2)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	handler.TrackCoinsFromAccount("cosmos1dq07qh6rc489le9wjlh9p3n5em3u24vwy94lxr", 1)
 
