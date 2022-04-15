@@ -24,18 +24,8 @@ func GetGovVoteData(proposalId int) map[string]types.Vote {
 			continue
 		}
 
-		if len(txRes.Result.Events) == 6 {
-			voteResult[voterAddress] = types.Vote{
-				Option:     getOption(string(txRes.Result.Events[4].Attributes[0].GetValue())),
-				ProposalId: proposalId,
-				Height:     txRes.Height,
-			}
-			continue
-
-		}
-
 		voteResult[voterAddress] = types.Vote{
-			Option:     getOption(string(txRes.Result.Events[8].Attributes[0].GetValue())),
+			Option:     getOption(string(txRes.Result.String())),
 			ProposalId: proposalId,
 			Height:     txRes.Height,
 		}

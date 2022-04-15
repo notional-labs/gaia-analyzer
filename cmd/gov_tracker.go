@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -11,7 +12,7 @@ import (
 
 func GovTrackCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "proposal_id [num_process]",
+		Use:   "proposal_id [proposalID]",
 		Short: "Get verified data for a the blocks",
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -23,6 +24,8 @@ func GovTrackCommand() *cobra.Command {
 
 			data := handler.GetGovVoteData(proposalID)
 			fmt.Print(data)
+			bs, _ := json.Marshal(data)
+			fmt.Println(string(bs))
 			return nil
 		},
 	}
