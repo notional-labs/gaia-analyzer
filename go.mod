@@ -2,7 +2,10 @@ module github.com/notional-labs/gaia-analyzer
 
 go 1.18
 
-require github.com/cosmos/cosmos-sdk v0.45.1
+require (
+	github.com/Workiva/go-datastructures v1.0.53
+	github.com/cosmos/cosmos-sdk v0.45.1
+)
 
 require (
 	github.com/armon/go-metrics v0.3.10 // indirect

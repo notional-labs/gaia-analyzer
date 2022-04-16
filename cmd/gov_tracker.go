@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	appquery "github.com/notional-labs/gaia-analyzer/db-query/app"
+	txquery "github.com/notional-labs/gaia-analyzer/db-query/tx"
 	"github.com/notional-labs/gaia-analyzer/handler"
 	"github.com/spf13/cobra"
 )
@@ -35,18 +35,18 @@ func GovTrackCommand() *cobra.Command {
 
 func QueryDatabase() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "querydata [query_string]",
+		Use:   "querydata ",
 		Short: "Get data by database",
 		Args:  cobra.MinimumNArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// var tmEvents = []string{
-			// 	"message.action='/cosmos.bank.v1beta1.MsgSend'",
-			// 	"tx.height<5",
-			// 	// fmt.Sprintf("proposal_vote.proposal_id='%d'", proposalID),
-			// }
+			var tmEvents = []string{
+				"message.action='/cosmos.bank.v1beta1.MsgSend'",
+				"tx.height>7314636",
+				"message.sender='cosmos1000ya26q2cmh399q4c5aaacd9lmmdqp92z6l7q'",
+				// fmt.Sprintf("proposal_vote.proposal_id='%d'", proposalID),
+			}
 
-			data, err := appquery.GetUatomBalanceAtHeight("cosmos1d9725dhaq06mayzfn8ape3kcfn8lmuypquutu6", 2)
-			fmt.Println(err.Error())
+			data := txquery.QueryTxs(tmEvents)
 			fmt.Print(data)
 			return nil
 		},
