@@ -92,6 +92,7 @@ func main() {
 		cmd.GovTrackCommand(),
 		cmd.QueryDatabase(),
 		cmd.CoinTrackCommand(),
+		cmd.BankTrackCommand(),
 	)
 
 	if err := rootCmd.Execute(); err != nil {

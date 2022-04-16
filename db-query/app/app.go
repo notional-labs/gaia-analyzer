@@ -33,7 +33,6 @@ func InitCommitMultiStoreAndApp(rootDir string) {
 	encCfg := simapp.MakeTestEncodingConfig()
 
 	EmptyApp = simapp.NewSimApp(nil, appDB, nil, true, map[int64]bool{}, "", 0, encCfg, simapp.EmptyAppOptions{})
-
 	Cms = EmptyApp.CMS()
 	// fmt.Printf("%+v\n", EmptyApp.BaseApp.CMS())
 }
