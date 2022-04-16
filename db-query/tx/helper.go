@@ -37,7 +37,11 @@ func GetEventItemFromTxResult(txResult *abcitypes.TxResult) *types.EventItem {
 		coinMovingEvents = append(coinMovingEvents, coinMovingEvent)
 	}
 
-	// if len(tx)
+	if len(coinSpentEvent.Attributes) {
+
+		from := string()
+
+	}
 
 }
 
