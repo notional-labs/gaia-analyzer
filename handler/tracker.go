@@ -30,6 +30,7 @@ func updateUatomBalance(address string, height int64) sdk.Int {
 	if err != nil {
 		panic(err)
 	}
+	fmt.Printf("update balance of %s at height %d: %d \n", address, height, uatomBalance)
 	data.UatomBalance[address] = uatomBalance
 
 	return uatomBalance
@@ -74,7 +75,6 @@ func TrackCoinsFromAccount(rootAddress string, startHeight int64) {
 	// update atom balance and tracked atom balance of root address
 	// tracked atom balance = atom balance at start height since we have to track all atoms from root account balance at that height
 	data.IsTrackedAccount[rootAddress] = true
-	data.UatomBalance[rootAddress] = atomAmountInThisAccount
 	data.TrackedUatomBalance[rootAddress] = atomAmountInThisAccount
 
 	for {
