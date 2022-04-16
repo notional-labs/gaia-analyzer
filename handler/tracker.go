@@ -53,8 +53,6 @@ func TrackCoinsFromAccount(rootAddress string, startHeight int64) {
 	// get all bank send from root address and to root address, push to global tx queue
 	txquery.GetBankSendUatomFromAddress(rootAddress, startHeight)
 
-	data.IsTrackedAccount[rootAddress] = true
-
 	// query chain to get root account atom balance at start height
 	atomAmountInThisAccount, err := appquery.GetUatomBalanceAtHeight(rootAddress, startHeight-1)
 	if err != nil {
@@ -62,6 +60,7 @@ func TrackCoinsFromAccount(rootAddress string, startHeight int64) {
 	}
 	// update atom balance and tracked atom balance of root address
 	// tracked atom balance = atom balance at start height since we have to track all atoms from root account balance at that height
+	data.IsTrackedAccount[rootAddress] = true
 	data.UatomBalance[rootAddress] = atomAmountInThisAccount
 	data.TrackedUatomBalance[rootAddress] = atomAmountInThisAccount
 
@@ -75,12 +74,13 @@ func TrackCoinsFromAccount(rootAddress string, startHeight int64) {
 		// tx queue : priority queue of txs with priority indicator being the tx's height
 		tx := heap.Pop(&data.TxQueue).(*types.TxItem)
 		// apply handle tx, output sender of tx
-		sender, recepient, _ := ParseBankSendTxEvent(tx.Events)
+		_, recepient, _ := ParseBankSendTxEvent(tx.Events)
 
-		TrackAccount(sender, tx.Height)
 		TrackAccount(recepient, tx.Height)
 
 		handle_tx(tx)
+		txquery.GetBankSendUatomFromAddress(recepient, tx.Height+1)
+
 	}
 	fmt.Println(data.TrackedUatomBalance)
 }
@@ -92,7 +92,6 @@ func TrackAccount(address string, height int64) {
 	if !isTracked {
 		data.IsTrackedAccount[address] = true
 		data.TrackedUatomBalance[address] = sdk.ZeroInt()
-		txquery.GetBankSendUatomFromAddress(address, height)
 	}
 }
 
