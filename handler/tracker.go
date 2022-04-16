@@ -52,12 +52,11 @@ func TrackCoinsFromAccount(rootAddress string, startHeight int64) {
 
 	// get all bank send from root address and to root address, push to global tx queue
 	txquery.GetBankSendUatomFromAddress(rootAddress, startHeight)
-	txquery.GetBankSendUatomToAddress(rootAddress, startHeight)
 
 	data.IsTrackedAccount[rootAddress] = true
 
 	// query chain to get root account atom balance at start height
-	atomAmountInThisAccount, err := appquery.GetUatomBalanceAtHeight(rootAddress, startHeight)
+	atomAmountInThisAccount, err := appquery.GetUatomBalanceAtHeight(rootAddress, startHeight-1)
 	if err != nil {
 		panic(err)
 	}
