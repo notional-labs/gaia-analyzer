@@ -54,7 +54,7 @@ func handle_tx(tx *types.TxItem) {
 
 	// update tracked atom balance for recipient account and sender account
 	fmt.Println(senderUatomBalance, data.TrackedUatomBalance[sender], sentUatomAmount)
-	fmt.Printf("%s send %s tracked coins (%s coins) to %s at height %d \n", sender, sentTrackedUatomAmount.String(), sentUatomAmount, recipient, height)
+	fmt.Printf("%s send %s tracked coins (%s coins) to %s at height %d \n", sender, sentTrackedUatomAmount.String(), sentUatomAmount.String(), recipient, height)
 	data.TrackedUatomBalance[recipient] = data.TrackedUatomBalance[recipient].Add(sentTrackedUatomAmount)
 	data.TrackedUatomBalance[sender] = data.TrackedUatomBalance[sender].Sub(sentTrackedUatomAmount)
 
