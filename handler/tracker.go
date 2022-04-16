@@ -30,7 +30,7 @@ func updateUatomBalance(address string, height int64) sdk.Int {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("update balance of %s at height %d: %d \n", address, height, uatomBalance)
+	fmt.Printf("update balance of %s at height %d: %s \n", address, height, uatomBalance)
 	data.UatomBalance[address] = uatomBalance
 
 	return uatomBalance
