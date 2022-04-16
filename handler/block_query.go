@@ -9,7 +9,7 @@ import (
 
 func QueryBlock(blockHeight int) []*abcitypes.TxResult {
 	var tmEvents = []string{
-		fmt.Sprintf("block.height='%d'", blockHeight),
+		fmt.Sprintf("tx.height=%d", blockHeight),
 	}
 	txsRes := txquery.QueryTxs(tmEvents)
 	return txsRes
