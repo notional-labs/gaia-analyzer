@@ -24,7 +24,6 @@ func GetGovVoteData(proposalId int) map[string]types.Vote {
 			}
 
 		}
-		fmt.Println(voterAddress)
 		_, ok := voteResult[voterAddress]
 
 		if ok && txRes.Height < voteResult[voterAddress].Height {
@@ -50,7 +49,6 @@ func getOption(rawOption string) string {
 	if strings.Contains(rawOption, `option\\\":1`) || strings.Contains(rawOption, `VOTE_OPTION_YES`) {
 		return "Yes"
 	}
-	fmt.Println(rawOption)
 	if strings.Contains(rawOption, `option\\\":1`) || strings.Contains(rawOption, `VOTE_OPTION_NO`) {
 		return "No"
 	}
