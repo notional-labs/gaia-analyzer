@@ -1,14 +1,10 @@
 // This example demonstrates a priority queue built using the heap interface.
 package types
 
-import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
-
 type CoinMovingEvent struct {
 	From   string
 	To     string
-	Amount *sdk.Int
+	Amount uint64
 }
 
 // tx item to put into queue

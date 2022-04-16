@@ -50,8 +50,7 @@ func handle_tx(tx *types.EventItem) string {
 func TrackCoinsFromAccount(rootAddress string, startHeight int64) {
 
 	// get all bank send from root address and to root address, push to global tx queue
-	txquery.TrackTxsSpendingCoinsFromAccount(rootAddress, startHeight)
-	txquery.TrackTxsSendingCoinsToAccount(rootAddress, startHeight)
+	txquery.TrackTxsTransferingCoinsFromAccount(rootAddress, startHeight)
 
 	data.IsTrackedAccount[rootAddress] = true
 
@@ -92,7 +91,7 @@ func TrackAccount(address string, height int64) {
 	if !isTracked {
 		data.IsTrackedAccount[address] = true
 		data.TrackedBalance[address] = sdk.ZeroInt()
-		txquery.TrackTxsSpendingCoinsFromAccount(address, height)
+		txquery.TrackTxsTransferingCoinsFromAccount(address, height)
 	}
 }
 

@@ -6,12 +6,12 @@ import (
 )
 
 // query txs that spend coin from 1 account. push those txs to tracked tx queue
-func TrackTxsSpendingCoinsFromAccount(spender string, fromHeight int64) {
+func TrackTxsTransferingCoinsFromAccount(sender string, fromHeight int64) {
 	// events use for query
-	spendingEvent := fmt.Sprintf("%s='%s'", "coin_spent.spender", spender)
+	sendingEvent := fmt.Sprintf("%s='%s'", "transfer.sender", sender)
 
 	heightEvent := fmt.Sprintf("%s>%s", "tx.height", strconv.FormatInt(fromHeight, 10))
-	tmEvents := []string{spendingEvent, heightEvent}
+	tmEvents := []string{sendingEvent, heightEvent}
 
 	for _, r := range QueryTxs(tmEvents) {
 		if IsBankSendUatomTx(&r.Result.Events) {
@@ -21,12 +21,12 @@ func TrackTxsSpendingCoinsFromAccount(spender string, fromHeight int64) {
 }
 
 // query txs that send atom to a given address since a given height. Push those txs to tracked tx queue
-func TrackTxsSendingCoinsToAccount(receiver string, fromHeight int64) {
+func TrackTxsTransferingCoinsToAccount(receiver string, fromHeight int64) {
 	// events use for query
-	receivingEvent := fmt.Sprintf("%s='%s'", "coin_received.receiver", receiver)
-	notSpendingEvent := fmt.Sprintf("%s!='%s'", "coin_spent.spender", receiver)
+	receivingEvent := fmt.Sprintf("%s='%s'", "transfer.recipient", receiver)
+	notSendingEvent := fmt.Sprintf("%s!='%s'", "transfer.sender", receiver)
 	heightEvent := fmt.Sprintf("%s>%s", "tx.height", strconv.FormatInt(fromHeight, 10))
-	tmEvents := []string{receivingEvent, heightEvent, notSpendingEvent}
+	tmEvents := []string{receivingEvent, heightEvent, notSendingEvent}
 
 	for _, r := range QueryTxs(tmEvents) {
 		if IsBankSendUatomTx(&r.Result.Events) {
@@ -34,3 +34,5 @@ func TrackTxsSendingCoinsToAccount(receiver string, fromHeight int64) {
 		}
 	}
 }
+
+// query txs that
