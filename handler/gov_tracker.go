@@ -17,8 +17,8 @@ func GetGovVoteData(proposalId int) map[string]types.Vote {
 		for _, v := range txRes.Result.Events[0].Attributes {
 			if string(v.GetKey()) == "sender" {
 				voterAddress = string(v.GetValue())
+				break
 			}
-
 		}
 		_, ok := voteResult[voterAddress]
 
