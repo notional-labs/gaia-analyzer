@@ -13,6 +13,10 @@ import (
 	abcitypes "github.com/tendermint/tendermint/abci/types"
 )
 
+var (
+	TrackThreshold sdk.Int
+)
+
 // cal tracked atom sent from a tracked account using blended, not FIFO
 // A Tracked account is an account that receives atom from the root account
 func calSentTrackedUatomAmount(atomBalance sdk.Int, trackedUatomBalance sdk.Int, sentUatomAmount sdk.Int) sdk.Int {
@@ -32,19 +36,28 @@ func updateUatomBalance(address string, height int64) sdk.Int {
 }
 
 // Apply bank send tx, update tracked atom balance after tx
-func handle_tx(tx *types.TxItem) string {
+func handle_tx(tx *types.TxItem) {
 	height := tx.Height
 	sender, recipient, sentUatomAmount := ParseBankSendTxEvent(tx.Events)
+
 	// cal amount of tracked atom sent using blended, not FIFO
 	senderUatomBalance := updateUatomBalance(sender, height-1)
-	sentTrackedUatomAmount := calSentTrackedUatomAmount(senderUatomBalance, data.TrackedUatomBalance[sender], sentUatomAmount)
+	senderTrackedUatomBalance := data.TrackedUatomBalance[sender]
+	sentTrackedUatomAmount := calSentTrackedUatomAmount(senderUatomBalance, senderTrackedUatomBalance, sentUatomAmount)
+	if sentTrackedUatomAmount.LT(TrackThreshold) {
+		data.TrackedUatomBalance[sender] = data.TrackedUatomBalance[sender].Sub(sentTrackedUatomAmount)
+		return
+	}
+
+	TrackAccount(recipient, tx.Height)
+
 	// update tracked atom balance for recipient account and sender account
 	fmt.Println(senderUatomBalance, data.TrackedUatomBalance[sender], sentUatomAmount)
 	fmt.Printf("%s send %s tracked coins (%s coins) to %s at height %d \n", sender, sentTrackedUatomAmount.String(), sentUatomAmount, recipient, height)
 	data.TrackedUatomBalance[recipient] = data.TrackedUatomBalance[recipient].Add(sentTrackedUatomAmount)
 	data.TrackedUatomBalance[sender] = data.TrackedUatomBalance[sender].Sub(sentTrackedUatomAmount)
 
-	return sender
+	txquery.GetBankSendUatomFromAddress(recipient, tx.Height+1)
 }
 
 // tracked all atom from a given address; start tracking from a given height; let's call this address root address
@@ -74,12 +87,8 @@ func TrackCoinsFromAccount(rootAddress string, startHeight int64) {
 		// tx queue : priority queue of txs with priority indicator being the tx's height
 		tx := heap.Pop(&data.TxQueue).(*types.TxItem)
 		// apply handle tx, output sender of tx
-		_, recepient, _ := ParseBankSendTxEvent(tx.Events)
-
-		TrackAccount(recepient, tx.Height)
 
 		handle_tx(tx)
-		txquery.GetBankSendUatomFromAddress(recepient, tx.Height+1)
 
 	}
 	fmt.Println(data.TrackedUatomBalance)
@@ -117,4 +126,8 @@ func ParseBankSendTxEvent(events *[]abcitypes.Event) (string, string, sdk.Int) {
 	}
 
 	return sender, recipient, amount
+}
+
+func init() {
+	TrackThreshold = sdk.NewIntFromUint64(100000)
 }
