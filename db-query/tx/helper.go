@@ -2,6 +2,7 @@ package tx
 
 import (
 	"container/heap"
+	"fmt"
 	"strings"
 
 	"github.com/notional-labs/gaia-analyzer/data"
@@ -17,6 +18,7 @@ func IsBankSendUatomTx(events *[]abcitypes.Event) bool {
 				if string(attribute.Key) == "amount" {
 					// check if denom of coin sent is atom
 					if strings.Contains(string(attribute.Value), data.TrackedDenom) {
+						fmt.Println(event.String())
 						return true
 					}
 				}
