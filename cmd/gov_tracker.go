@@ -41,7 +41,7 @@ func QueryDatabase() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var tmEvents = []string{
 				"message.action='/cosmos.bank.v1beta1.MsgSend'",
-				"tx.height>7314636",
+				// "tx.height>7314636",
 				"message.sender='cosmos1000ya26q2cmh399q4c5aaacd9lmmdqp92z6l7q'",
 				// fmt.Sprintf("proposal_vote.proposal_id='%d'", proposalID),
 			}

@@ -14,7 +14,7 @@ func GetBankSendUatomFromAddress(sender string, fromHeight int64) {
 	tmEvents := []string{senderEvent, bankSendEvent, heightEvent}
 
 	for _, r := range QueryTxs(tmEvents) {
-		fmt.Printf(r.Result.Events[0].String() + "\n")
+		fmt.Println(r.Height)
 		if IsBankSendUatomTx(&r.Result.Events) {
 			PushToTxQueue(r)
 		}
