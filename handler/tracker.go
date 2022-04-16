@@ -68,10 +68,8 @@ func TrackCoinsFromAccount(rootAddress string, startHeight int64) {
 	txquery.GetBankSendUatomFromAddress(rootAddress, startHeight)
 
 	// query chain to get root account atom balance at start height
-	atomAmountInThisAccount, err := appquery.GetUatomBalanceAtHeight(rootAddress, startHeight-1)
-	if err != nil {
-		panic(err)
-	}
+	atomAmountInThisAccount := updateUatomBalance(rootAddress, startHeight-1)
+
 	// update atom balance and tracked atom balance of root address
 	// tracked atom balance = atom balance at start height since we have to track all atoms from root account balance at that height
 	data.IsTrackedAccount[rootAddress] = true
