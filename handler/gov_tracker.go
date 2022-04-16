@@ -14,12 +14,17 @@ func GetGovVoteData(proposalId int) map[string]types.Vote {
 
 	for _, txRes := range txs {
 		var voterAddress string
-		for _, v := range txRes.Result.Events[0].Attributes {
-			if string(v.GetKey()) == "sender" {
-				voterAddress = string(v.GetValue())
-				break
+
+		for _, event := range txRes.Result.Events {
+			for _, attribute := range event.Attributes {
+				if string(attribute.GetKey()) == "sender" {
+					voterAddress = string(attribute.GetValue())
+					break
+				}
 			}
+
 		}
+		fmt.Println(voterAddress)
 		_, ok := voteResult[voterAddress]
 
 		if ok && txRes.Height < voteResult[voterAddress].Height {
@@ -42,15 +47,15 @@ func GetGovVoteData(proposalId int) map[string]types.Vote {
 
 // raw option like {\"option\":1,\"weight\":\"1.000000000000000000\"}
 func getOption(rawOption string) string {
-	if strings.Contains(rawOption, `"option":1`) || strings.Contains(rawOption, `VOTE_OPTION_YES`) {
+	if strings.Contains(rawOption, `option\\\":1`) || strings.Contains(rawOption, `VOTE_OPTION_YES`) {
 		return "Yes"
 	}
-
-	if strings.Contains(rawOption, `"option":2`) || strings.Contains(rawOption, `VOTE_OPTION_NO`) {
+	fmt.Println(rawOption)
+	if strings.Contains(rawOption, `option\\\":1`) || strings.Contains(rawOption, `VOTE_OPTION_NO`) {
 		return "No"
 	}
 
-	if strings.Contains(rawOption, `"option":3`) || strings.Contains(rawOption, `VOTE_OPTION_NO_WITH_VETO`) {
+	if strings.Contains(rawOption, `option\\\":1`) || strings.Contains(rawOption, `VOTE_OPTION_NO_WITH_VETO`) {
 		return "NoWithVeto"
 	}
 
