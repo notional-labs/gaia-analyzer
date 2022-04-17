@@ -18,7 +18,6 @@ func GetUatomBalanceAtHeight(address string, height int64) (sdk.Int, error) {
 		return sdk.ZeroInt(), err
 	}
 	coin := EmptyApp.BankKeeper.GetBalance(ctx, accAddress, data.TrackedDenom)
-	fmt.Printf("Tracked coin of address %s is : %d", address, coin.Amount.Int64())
-	fmt.Println("===================")
+	fmt.Printf("Tracked coin of address %s is : %s \n", address, coin.Amount)
 	return coin.Amount, nil
 }

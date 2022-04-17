@@ -6,20 +6,21 @@ import (
 	"strconv"
 	"strings"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/notional-labs/gaia-analyzer/db-query/app"
 	abcitypes "github.com/tendermint/tendermint/abci/types"
 )
 
 var (
-	CoinTracker map[string]int64
+	CoinTracker map[string]sdk.Int
 	StartBlock  int
 )
 
 func setCoinTracker(address string, blockHeight int) error {
-	CoinTracker = make(map[string]int64)
+	CoinTracker = make(map[string]sdk.Int)
 
 	amount, err := app.GetUatomBalanceAtHeight(address, int64(blockHeight))
-	CoinTracker[address] = amount.Int64()
+	CoinTracker[address] = amount
 	return err
 }
 
@@ -45,19 +46,28 @@ func updateCoinTrackerByTx(tx abcitypes.TxResult) {
 
 	re := regexp.MustCompile("[0-9]+")
 	a := re.FindAllString(amountinTx, -1)
-	amountTransfer, _ := strconv.Atoi(a[0])
-
-	if currentTrackedCoin <= int64(amountTransfer) {
-		CoinTracker[recipient] = currentTrackedCoin
+	tempAmount, _ := strconv.Atoi(a[0])
+	amountTransfer := sdk.NewInt(int64(tempAmount))
+	if amountTransfer.GTE(currentTrackedCoin) {
+		coin, ok := CoinTracker[recipient]
+		if ok {
+			CoinTracker[recipient] = coin.Add(currentTrackedCoin)
+		} else {
+			CoinTracker[recipient] = currentTrackedCoin
+		}
 		delete(CoinTracker, sender)
-		fmt.Printf("Tracked coin from %s to %s ::: %d  ", sender, recipient, currentTrackedCoin)
-		fmt.Println("===================")
+		fmt.Printf("Tracked coin from %s to %s : %d  \n", sender, recipient, currentTrackedCoin)
 
 	} else {
-		CoinTracker[recipient] = int64(amountTransfer)
-		CoinTracker[sender] = currentTrackedCoin - int64(amountTransfer)
-		fmt.Printf("Tracked coin from %s to %s ::: %d  ", sender, recipient, amountTransfer)
-		fmt.Println("===================")
+
+		coin, ok := CoinTracker[recipient]
+		if ok {
+			CoinTracker[recipient] = coin.Add(amountTransfer)
+		} else {
+			CoinTracker[recipient] = amountTransfer
+		}
+		CoinTracker[sender] = currentTrackedCoin.Sub(amountTransfer)
+		fmt.Printf("Tracked coin from %s to %s : %s  \n", sender, recipient, amountTransfer)
 
 	}
 }
@@ -72,8 +82,6 @@ func updateCoinTrackerByBlock(blockHeight int) {
 func ExecuteTrack(address string, blockStart int, blockEnd int) {
 	setCoinTracker(address, blockStart)
 	for i := blockStart; i <= blockEnd; i++ {
-		fmt.Println("==============")
-		fmt.Printf("Processing block %d", i)
 		updateCoinTrackerByBlock(i)
 	}
 }
