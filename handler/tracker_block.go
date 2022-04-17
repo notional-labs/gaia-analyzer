@@ -26,6 +26,9 @@ func setCoinTracker(address string, blockHeight int) error {
 }
 
 func updateCoinTrackerByTx(tx abcitypes.TxResult) {
+	if tx.Result.Code != 0 {
+		return
+	}
 	var trueEvent abcitypes.Event
 	for _, v := range tx.Result.Events {
 		if v.Type == "transfer" {
