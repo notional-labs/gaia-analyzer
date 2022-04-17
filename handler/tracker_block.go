@@ -72,6 +72,8 @@ func updateCoinTrackerByBlock(blockHeight int) {
 func ExecuteTrack(address string, blockStart int, blockEnd int) {
 	setCoinTracker(address, blockStart)
 	for i := blockStart; i <= blockEnd; i++ {
+		fmt.Println("==============")
+		fmt.Printf("Processing block %d", i)
 		updateCoinTrackerByBlock(i)
 	}
 }
