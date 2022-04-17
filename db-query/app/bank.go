@@ -1,6 +1,8 @@
 package app
 
 import (
+	"fmt"
+
 	"github.com/notional-labs/gaia-analyzer/data"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -16,5 +18,7 @@ func GetUatomBalanceAtHeight(address string, height int64) (sdk.Int, error) {
 		return sdk.ZeroInt(), err
 	}
 	coin := EmptyApp.BankKeeper.GetBalance(ctx, accAddress, data.TrackedDenom)
+	fmt.Printf("Tracked coin of address %s is : %d", address, coin.Amount.Int64())
+	fmt.Println("===================")
 	return coin.Amount, nil
 }

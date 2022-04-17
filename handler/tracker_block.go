@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -49,9 +50,15 @@ func updateCoinTrackerByTx(tx abcitypes.TxResult) {
 	if currentTrackedCoin <= int64(amountTransfer) {
 		CoinTracker[recipient] = currentTrackedCoin
 		delete(CoinTracker, sender)
+		fmt.Printf("Tracked coin from %s to %s ::: %d  ", sender, recipient, currentTrackedCoin)
+		fmt.Println("===================")
+
 	} else {
 		CoinTracker[recipient] = int64(amountTransfer)
 		CoinTracker[sender] = currentTrackedCoin - int64(amountTransfer)
+		fmt.Printf("Tracked coin from %s to %s ::: %d  ", sender, recipient, amountTransfer)
+		fmt.Println("===================")
+
 	}
 }
 
