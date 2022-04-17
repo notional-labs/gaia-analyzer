@@ -12,6 +12,10 @@ import (
 	"github.com/notional-labs/gaia-analyzer/types"
 )
 
+var (
+	TrackThreshold sdk.Int
+)
+
 // cal tracked atom sent from a tracked account using blended, not FIFO
 // A Tracked account is an account that receives atom from the root account
 func calSentTrackedUatomAmount(atomBalance sdk.Int, trackedUatomBalance sdk.Int, sentUatomAmount sdk.Int) sdk.Int {
@@ -31,19 +35,27 @@ func updateUatomBalance(address string, height int64) sdk.Int {
 }
 
 // Apply bank send tx, update tracked atom balance after tx
-func handle_tx(tx *types.EventItem) string {
+func handle_tx(tx *types.EventItem) {
 	height := tx.Height
 	sender, recipient, sentUatomAmount := ParseBankSendTxEvent(tx.Events)
 	// cal amount of tracked atom sent using blended, not FIFO
 	senderUatomBalance := updateUatomBalance(sender, height-1)
 	sentTrackedUatomAmount := calSentTrackedUatomAmount(senderUatomBalance, data.TrackedBalance[sender], sentUatomAmount)
+	if sentTrackedUatomAmount.LT(TrackThreshold) {
+		data.TrackedBalance[sender] = data.TrackedBalance[sender].Sub(sentTrackedUatomAmount)
+		return
+	}
+
+	TrackAccount(recipient, height)
+
 	// update tracked atom balance for recipient account and sender account
 	fmt.Println(senderUatomBalance, data.TrackedBalance[sender], sentUatomAmount)
 	fmt.Printf("%s send %s tracked coins (%s coins) to %s at height %d \n", sender, sentTrackedUatomAmount.String(), sentUatomAmount, recipient, height)
 	data.TrackedBalance[recipient] = data.TrackedBalance[recipient].Add(sentTrackedUatomAmount)
 	data.TrackedBalance[sender] = data.TrackedBalance[sender].Sub(sentTrackedUatomAmount)
 
-	return sender
+	txquery.TrackTxsTransferingCoinsFromAccount(recipient, height)
+
 }
 
 // tracked all atom from a given address; start tracking from a given height; let's call this address root address
@@ -74,10 +86,6 @@ func TrackCoinsFromAccount(rootAddress string, startHeight int64) {
 		// tx queue : priority queue of txs with priority indicator being the tx's height
 		tx := heap.Pop(&data.TrackedTxQueue).(*types.EventItem)
 		// apply handle tx, output sender of tx
-		sender, recepient, _ := ParseBankSendTxEvent(tx.Events)
-
-		TrackAccount(sender, tx.Height)
-		TrackAccount(recepient, tx.Height)
 
 		handle_tx(tx)
 	}
@@ -91,7 +99,6 @@ func TrackAccount(address string, height int64) {
 	if !isTracked {
 		data.IsTrackedAccount[address] = true
 		data.TrackedBalance[address] = sdk.ZeroInt()
-		txquery.TrackTxsTransferingCoinsFromAccount(address, height)
 	}
 }
 

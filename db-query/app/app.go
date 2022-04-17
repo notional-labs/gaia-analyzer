@@ -15,7 +15,7 @@ var (
 	// multi store taken from application.db
 	Cms sdk.CommitMultiStore
 	// Used to access to application state at current height
-	CurrentQueryContext *sdk.Context
+	CurrentQueryContext sdk.Context
 
 	CurrentHeight int64
 )
@@ -46,7 +46,7 @@ func OpenAppDB(rootDir string) (dbm.DB, error) {
 	return a, err
 }
 
-func GetQueryContext(height int64) *sdk.Context {
+func GetQueryContext(height int64) sdk.Context {
 	if CurrentHeight == height {
 		return CurrentQueryContext
 	}
@@ -55,7 +55,7 @@ func GetQueryContext(height int64) *sdk.Context {
 		panic(err)
 	}
 
-	CurrentQueryContext = sdk.NewRefContext(
+	CurrentQueryContext = sdk.NewContext(
 		cacheMS, tmproto.Header{}, true, nil,
 	)
 
