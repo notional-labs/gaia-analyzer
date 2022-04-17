@@ -3,12 +3,13 @@ module github.com/notional-labs/gaia-analyzer
 go 1.18
 
 require (
-	github.com/Workiva/go-datastructures v1.0.53
 	github.com/cosmos/cosmos-sdk v0.45.1
+	github.com/cosmos/cosmos-sdk/api v0.1.0
 )
 
 require (
 	github.com/armon/go-metrics v0.3.10 // indirect
+	github.com/cosmos/cosmos-proto v1.0.0-alpha7 // indirect
 	github.com/go-kit/log v0.2.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 )
@@ -107,9 +108,9 @@ require (
 	golang.org/x/sys v0.0.0-20211205182925-97ca703d548d // indirect
 	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa // indirect
-	google.golang.org/grpc v1.42.0 // indirect
-	google.golang.org/protobuf v1.27.1 // indirect
+	google.golang.org/genproto v0.0.0-20211223182754-3ac035c7e7cb // indirect
+	google.golang.org/grpc v1.45.0 // indirect
+	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect

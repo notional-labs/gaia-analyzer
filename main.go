@@ -6,11 +6,13 @@ import (
 
 	// "github.com/notional-labs/gaia-analyzer/cmd"
 
+	"fmt"
 	"os"
 
 	"github.com/notional-labs/gaia-analyzer/cmd"
 	"github.com/notional-labs/gaia-analyzer/data"
 	dbquery "github.com/notional-labs/gaia-analyzer/db-query"
+	"github.com/notional-labs/gaia-analyzer/handler"
 	"github.com/spf13/cobra"
 	// "github.com/spf13/cobra"
 )
@@ -21,9 +23,11 @@ var (
 
 func main() {
 
-	// dbquery.Init("/Users/khanh/.dig")
+	dbquery.Init("/home/vuong/.dig")
 
-	data.TrackedDenom = "stake"
+	data.TrackedDenom = "uatom"
+	handler.ExecuteTrack("cosmos1d9725dhaq06mayzfn8ape3kcfn8lmuypquutu6", 1, 8)
+	fmt.Println(handler.CoinTracker)
 	// data, err := appquery.GetUatomBalanceAtHeight("cosmos1d9725dhaq06mayzfn8ape3kcfn8lmuypquutu6", 2)
 	// if err != nil {
 	// 	panic(err)

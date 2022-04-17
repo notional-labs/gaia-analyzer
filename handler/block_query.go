@@ -7,9 +7,10 @@ import (
 	abcitypes "github.com/tendermint/tendermint/abci/types"
 )
 
-func QueryBlock(blockHeight int) []*abcitypes.TxResult {
+func QuerySendTxInBlock(blockHeight int) []*abcitypes.TxResult {
 	var tmEvents = []string{
 		fmt.Sprintf("tx.height=%d", blockHeight),
+		"message.action='/cosmos.bank.v1beta1.MsgSend'",
 	}
 	txsRes := txquery.QueryTxs(tmEvents)
 	return txsRes

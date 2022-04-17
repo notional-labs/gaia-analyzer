@@ -1,0 +1,70 @@
+package handler
+
+import (
+	"regexp"
+	"strconv"
+	"strings"
+
+	"github.com/notional-labs/gaia-analyzer/db-query/app"
+	abcitypes "github.com/tendermint/tendermint/abci/types"
+)
+
+var (
+	CoinTracker map[string]int64
+	StartBlock  int
+)
+
+func setCoinTracker(address string, blockHeight int) error {
+	CoinTracker = make(map[string]int64)
+
+	amount, err := app.GetUatomBalanceAtHeight(address, int64(blockHeight))
+	CoinTracker[address] = amount.Int64()
+	return err
+}
+
+func updateCoinTrackerByTx(tx abcitypes.TxResult) {
+	var trueEvent abcitypes.Event
+	for _, v := range tx.Result.Events {
+		if v.Type == "transfer" {
+			trueEvent = v
+		}
+	}
+	sender := string(trueEvent.Attributes[1].GetValue())
+	recipient := string(trueEvent.Attributes[0].GetValue())
+	amountinTx := string(trueEvent.Attributes[2].GetValue())
+	if !strings.Contains(amountinTx, "stake") {
+		return
+	}
+
+	currentTrackedCoin, ok := CoinTracker[string(sender)]
+
+	if !ok {
+		return
+	}
+
+	re := regexp.MustCompile("[0-9]+")
+	a := re.FindAllString(amountinTx, -1)
+	amountTransfer, _ := strconv.Atoi(a[0])
+
+	if currentTrackedCoin <= int64(amountTransfer) {
+		CoinTracker[recipient] = currentTrackedCoin
+		delete(CoinTracker, sender)
+	} else {
+		CoinTracker[recipient] = int64(amountTransfer)
+		CoinTracker[sender] = currentTrackedCoin - int64(amountTransfer)
+	}
+}
+
+func updateCoinTrackerByBlock(blockHeight int) {
+	txs := QuerySendTxInBlock(blockHeight)
+	for _, tx := range txs {
+		updateCoinTrackerByTx(*tx)
+	}
+}
+
+func ExecuteTrack(address string, blockStart int, blockEnd int) {
+	setCoinTracker(address, blockStart)
+	for i := blockStart; i <= blockEnd; i++ {
+		updateCoinTrackerByBlock(i)
+	}
+}

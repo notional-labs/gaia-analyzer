@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strconv"
 
-	txquery "github.com/notional-labs/gaia-analyzer/db-query/tx"
 	"github.com/notional-labs/gaia-analyzer/handler"
 	"github.com/spf13/cobra"
 )
@@ -35,19 +34,22 @@ func GovTrackCommand() *cobra.Command {
 
 func QueryDatabase() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "querydata ",
+		Use:   "trackaccount [address] [start] [end] ",
 		Short: "Get data by database",
-		Args:  cobra.MinimumNArgs(0),
+		Args:  cobra.MinimumNArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			var tmEvents = []string{
-				"message.action='/cosmos.bank.v1beta1.MsgSend'",
-				// "tx.height>7314636",
-				"message.sender='cosmos1000ya26q2cmh399q4c5aaacd9lmmdqp92z6l7q'",
-				// fmt.Sprintf("proposal_vote.proposal_id='%d'", proposalID),
-			}
+			// var tmEvents = []string{
+			// 	"message.action='/cosmos.bank.v1beta1.MsgSend'",
+			// 	// "tx.height>7314636",
+			// 	"message.sender='cosmos1000ya26q2cmh399q4c5aaacd9lmmdqp92z6l7q'",
+			// 	// fmt.Sprintf("proposal_vote.proposal_id='%d'", proposalID),
+			// }
 
-			data := txquery.QueryTxs(tmEvents)
-			fmt.Print(data)
+			startBlock, _ := strconv.Atoi(args[1])
+			endBlock, _ := strconv.Atoi(args[2])
+
+			handler.ExecuteTrack(args[0], startBlock, endBlock)
+			fmt.Println(handler.CoinTracker)
 			return nil
 		},
 	}
