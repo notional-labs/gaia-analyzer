@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/notional-labs/gaia-analyzer/data"
 	"github.com/notional-labs/gaia-analyzer/db-query/app"
 	abcitypes "github.com/tendermint/tendermint/abci/types"
 )
@@ -34,7 +35,7 @@ func updateCoinTrackerByTx(tx abcitypes.TxResult) {
 	sender := string(trueEvent.Attributes[1].GetValue())
 	recipient := string(trueEvent.Attributes[0].GetValue())
 	amountinTx := string(trueEvent.Attributes[2].GetValue())
-	if !strings.Contains(amountinTx, "stake") {
+	if !strings.Contains(amountinTx, data.TrackedDenom) {
 		return
 	}
 
@@ -59,7 +60,6 @@ func updateCoinTrackerByTx(tx abcitypes.TxResult) {
 		fmt.Printf("Tracked coin from %s to %s : %d  \n", sender, recipient, currentTrackedCoin)
 
 	} else {
-
 		coin, ok := CoinTracker[recipient]
 		if ok {
 			CoinTracker[recipient] = coin.Add(amountTransfer)
@@ -68,7 +68,6 @@ func updateCoinTrackerByTx(tx abcitypes.TxResult) {
 		}
 		CoinTracker[sender] = currentTrackedCoin.Sub(amountTransfer)
 		fmt.Printf("Tracked coin from %s to %s : %s  \n", sender, recipient, amountTransfer)
-
 	}
 }
 
