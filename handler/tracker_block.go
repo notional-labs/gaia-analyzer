@@ -32,6 +32,11 @@ func updateCoinTrackerByTx(tx abcitypes.TxResult) {
 			trueEvent = v
 		}
 	}
+
+	if len(trueEvent.Attributes) == 0 {
+		fmt.Println(tx)
+	}
+
 	sender := string(trueEvent.Attributes[1].GetValue())
 	recipient := string(trueEvent.Attributes[0].GetValue())
 	amountinTx := string(trueEvent.Attributes[2].GetValue())
@@ -57,7 +62,7 @@ func updateCoinTrackerByTx(tx abcitypes.TxResult) {
 			CoinTracker[recipient] = currentTrackedCoin
 		}
 		delete(CoinTracker, sender)
-		fmt.Printf("Tracked coin from %s to %s : %d  \n", sender, recipient, currentTrackedCoin)
+		fmt.Printf("Tracked coin from %s to %s : %s  \n", sender, recipient, currentTrackedCoin)
 
 	} else {
 		coin, ok := CoinTracker[recipient]
