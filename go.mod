@@ -2,10 +2,7 @@ module github.com/notional-labs/gaia-analyzer
 
 go 1.18
 
-require (
-	github.com/Workiva/go-datastructures v1.0.53
-	github.com/cosmos/cosmos-sdk v0.45.1
-)
+require github.com/cosmos/cosmos-sdk v0.45.1
 
 require (
 	github.com/armon/go-metrics v0.3.10 // indirect
@@ -76,7 +73,7 @@ require (
 	github.com/petermattis/goid v0.0.0-20180202154549-b0b1615b78e5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/prometheus/client_golang v1.11.0 // indirect
+	github.com/prometheus/client_golang v1.11.1 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.30.0 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
